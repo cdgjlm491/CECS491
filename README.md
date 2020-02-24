@@ -7,8 +7,11 @@ git clone <url of this repo>
 cd to directory  
   
 <start here when making changes>
-git pull  			(PULL BEFORE YOU CHANGE ANYTHING)
+( V PULL BEFORE YOU CHANGE ANYTHING)  
+git pull  
 <make changes>  
-git add *  		(this adds any files you created to be pushed)  
+( V this adds any files you created to be pushed)  
+git add *
 git commit -m "<insert message>"  
-git push			(PUSH OFTEN)
+(PUSH OFTEN)  
+git push  
