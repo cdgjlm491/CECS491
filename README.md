@@ -14,7 +14,7 @@ git pull
 
 make changes  
 
-**this adds any files you created to be pushed**  
+**this adds any files you created/changed to be pushed**  
 git add *  
 git commit -m 'insert message'  
 
