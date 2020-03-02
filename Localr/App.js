@@ -8,14 +8,33 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
+import * as firebase from 'firebase';
 
 const Stack = createStackNavigator();
+
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = React.useState(false);
   const [initialNavigationState, setInitialNavigationState] = React.useState();
   const containerRef = React.useRef();
   const { getInitialState } = useLinking(containerRef);
+
+
+    // Set the configuration for your app
+  if (!firebase.apps.length) {
+
+    var config = {
+      apiKey: "AIzaSyDHoPIp9f9y9LaH8OJrknEbTw6f5dTk0cw",
+      authDomain: "localr-ed333.firebaseapp.com",
+      databaseURL: "https://localr-ed333.firebaseio.com/",
+      storageBucket: "localr-ed333.appspot.com"
+    };
+    firebase.initializeApp(config);
+  
+    // Get a reference to the database service
+    var database = firebase.database();
+    console.log(database);
+    }
 
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {

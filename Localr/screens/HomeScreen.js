@@ -4,7 +4,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 import * as WebBrowser from 'expo-web-browser';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
 
-
 import { MonoText } from '../components/StyledText';
 
 export default function HomeScreen() {
@@ -57,13 +56,13 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      <View style={styles.tabBarInfoContainer}>
+{/*       <View style={styles.tabBarInfoContainer}>
         <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
 
         <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
           <MonoText style={styles.codeHighlightText}>navigation/BottomTabNavigator.js</MonoText>
         </View>
-      </View>
+      </View> */}
     </View>
   );
 }
