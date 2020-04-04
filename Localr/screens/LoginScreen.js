@@ -1,40 +1,125 @@
 import * as React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import * as WebBrowser from 'expo-web-browser';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { StyleSheet, View, Image, Alert } from 'react-native';
+import { Button, Input } from 'react-native-elements';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import Firebase from '../components/Firebase'
 
+
+//it seems like you can use functions or classes, but classes are easier if you are new? cleasses extend react components and functions use hooks to hook onto react components
 export default function LoginScreen() {
-   return (
-    <Text>Temp login page</Text>
-  ); 
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+
+  return (
+
+    <View style={styles.container}>
+
+      <View style={styles.logoContainer}>
+      <Image source={require('../assets/images/localr_logo.png')} style={styles.image} />
+      </View>
+
+      <View style={styles.contentContainer}>
+
+      <View style={styles.input} //this is a dirty fix by wrapping the buttons and inputs in a view to apply css properties to it
+      >
+        <Input
+          placeholder='Email address'
+          leftIcon={
+            <Icon
+              name='envelope-square'
+              size={24}
+              color='black'
+              style={styles.icon}
+            />
+          }
+        onChangeText={email => setEmail(email)}
+        value={email}
+        />
+        </View>
+
+        <View style={styles.input}>
+        <Input
+          placeholder='Enter password'
+          leftIcon={
+            <Icon
+              name='lock'
+              size={24}
+              color='black'
+              style={styles.icon}
+            />
+          }
+          onChangeText={password => setPassword(password)}
+          value={password}
+        />
+        </View>
+
+
+        <View style={styles.button}>
+          <Button title="Log In"
+          onPress={() => LogIn(email, password)} 
+          />
+        </View>
+
+        <View style={styles.button}>
+          <Button style={styles.Button} title="Sign Up"
+          onPress={() => SignUp(email, password)} 
+          />
+        </View>
+      </View>
+    </View>
+  );
 }
+
+function SignUp (email, password) {
+  try {
+    Firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(user => {
+        console.log(user);
+      });
+  } catch (error) {
+    console.log(error.toString(error));
+  }
+};
+
+
+function LogIn (email, password) {
+  try {
+    Firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(res => {
+        console.log(res.user.email);
+        Alert.alert(res.user.email);
+      });
+  } catch (error) {
+    console.log(error.toString(error));
+  }
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fafafa',
+    flex: 1
   },
   contentContainer: {
-    paddingTop: 15,
+    paddingTop: 15
   },
-  optionIconContainer: {
-    marginRight: 12,
+  button: {
+    marginTop: 10
   },
-  option: {
-    backgroundColor: '#fdfdfd',
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: 0,
-    borderColor: '#ededed',
+  input: {
+    marginTop: 10
   },
-  lastOption: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
+  image: {
+    height: 200,
+    width: 200,
+    resizeMode: 'contain',
   },
-  optionText: {
-    fontSize: 15,
-    alignSelf: 'flex-start',
-    marginTop: 1,
+  logoContainer: {
+    alignItems: 'center',
+  },
+  icon: {
+    marginRight: 10
   },
 });

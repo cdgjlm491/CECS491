@@ -4,9 +4,15 @@ import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import LinksScreen from '../screens/LinksScreen';
 import LoginScreen from '../screens/LoginScreen';
+import FilterScreen from '../screens/FilterScreen';
+
+
+/////////////////////////////////////////////////////////////////////////////
+// UNUSED NOW, ONLY HERE FOR LEARNING
+/////////////////////////////////////////////////////////////////////////////
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'Home';
+const INITIAL_ROUTE_NAME = 'Login';
 
 export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the
@@ -40,7 +46,15 @@ export default function BottomTabNavigator({ navigation, route }) {
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
         }}
       />
-    </BottomTab.Navigator>
+      <BottomTab.Screen
+      name="Filter"
+      component={FilterScreen}
+      options={{
+        title: 'Filter',
+        tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
+      }}
+    />
+  </BottomTab.Navigator>
   );
 }
 
@@ -53,6 +67,8 @@ function getHeaderTitle(route) {
     case 'Links':
       return 'Links to learn more';
     case 'Login':
-      return 'Temp'; //Header
+      return 'Login'; //Header
+    case 'Filter':
+      return 'Filter';
   }
 }
