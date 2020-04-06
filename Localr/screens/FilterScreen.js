@@ -3,8 +3,6 @@ import { StyleSheet, View} from 'react-native';
 import { CheckBox } from 'react-native-elements'
 
 
-
-
 export default class FilterScreen extends React.Component {
     state = {
         tags: [

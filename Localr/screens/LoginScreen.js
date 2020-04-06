@@ -14,63 +14,63 @@ export default function LoginScreen() {
 
     <View style={styles.container}>
 
-      <View style={styles.logoContainer}>
-      <Image source={require('../assets/images/localr_logo_transparent_2.png')} style={styles.image} />
-      </View>
-
       <View style={styles.contentContainer}>
 
-      <View style={styles.input} //this is a dirty fix by wrapping the buttons and inputs in a view to apply css properties to it
-      >
-        <Input
-          placeholder='Email address'
-          leftIcon={
-            <Icon
-              name='envelope-square'
-              size={24}
-              color='black'
-              style={styles.icon}
-            />
-          }
-        onChangeText={email => setEmail(email)}
-        value={email}
-        />
+        <View style={styles.logoContainer}>
+          <Image source={require('../assets/images/localr_logo_transparent_2.png')} style={styles.image} />
         </View>
 
         <View style={styles.input}>
-        <Input
-          placeholder='Enter password'
-          leftIcon={
-            <Icon
-              name='lock'
-              size={24}
-              color='black'
-              style={styles.icon}
-            />
-          }
-          onChangeText={password => setPassword(password)}
-          value={password}
-        />
+          <Input
+            placeholder='Email address'
+            leftIcon={
+              <Icon
+                name='envelope-square'
+                size={24}
+                color='black'
+                style={styles.icon}
+              />
+            }
+            onChangeText={email => setEmail(email)}
+            value={email}
+          />
+        </View>
+
+        <View style={styles.input}>
+          <Input
+            placeholder='Enter password'
+            leftIcon={
+              <Icon
+                name='lock'
+                size={24}
+                color='black'
+                style={styles.icon}
+              />
+            }
+            onChangeText={password => setPassword(password)}
+            value={password}
+          />
         </View>
 
 
         <View style={styles.button}>
           <Button title="Log In"
-          onPress={() => LogIn(email, password)} 
+            onPress={() => LogIn(email, password)}
           />
         </View>
 
         <View style={styles.button}>
-          <Button style={styles.Button} title="Sign Up"
-          onPress={() => SignUp(email, password)} 
+          <Button title="Sign Up"
+            onPress={() => SignUp(email, password)}
           />
         </View>
+
       </View>
     </View>
   );
 }
 
-function SignUp (email, password) {
+function SignUp(email, password) {
   try {
     Firebase
       .auth()
@@ -84,7 +84,7 @@ function SignUp (email, password) {
 };
 
 
-function LogIn (email, password) {
+function LogIn(email, password) {
   try {
     Firebase
       .auth()
@@ -106,10 +106,10 @@ const styles = StyleSheet.create({
     paddingTop: 15
   },
   button: {
-    marginTop: 10
+    paddingTop: 10
   },
   input: {
-    marginTop: 10
+    paddingTop: 10
   },
   image: {
     height: 200,
