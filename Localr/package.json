@@ -14,18 +14,18 @@
   "dependencies": {
     "@expo/vector-icons": "~10.0.0",
     "@react-native-community/masked-view": "0.1.5",
-    "@react-navigation/bottom-tabs": "^5.0.0",
+    "@react-navigation/bottom-tabs": "^5.2.5",
     "@react-navigation/drawer": "^5.4.0",
-    "@react-navigation/native": "^5.0.0",
-    "@react-navigation/stack": "^5.0.0",
+    "@react-navigation/native": "^5.1.4",
+    "@react-navigation/stack": "^5.2.9",
     "@react-navigation/web": "~1.0.0-alpha.9",
     "expo": "~36.0.0",
     "expo-asset": "~8.0.0",
-    "expo-cli": "^3.13.1",
+    "expo-cli": "^3.17.17",
     "expo-constants": "~8.0.0",
     "expo-font": "~8.0.0",
     "expo-web-browser": "~8.0.0",
-    "firebase": "^7.9.3",
+    "firebase": "^7.13.2",
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
     "react-native": "^0.61.5",
@@ -40,7 +40,7 @@
     "react-navigation": "^4.3.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
+    "@babel/core": "^7.9.0",
     "babel-preset-expo": "~8.0.0",
     "jest-expo": "~36.0.1"
   },
