@@ -11,6 +11,9 @@ import useLinking from './navigation/useLinking';
 
 const Stack = createStackNavigator();
 
+//DISABLES WARNINGS WHEN THE APP IS RUNNING, COMMENT THIS OUT WHEN DOING DEVELOPMENT
+console.disableYellowBox = true;
+////////////////////////////////////////////////////////////////////////////////////
 
 export default function App(props) {
   //hooks
