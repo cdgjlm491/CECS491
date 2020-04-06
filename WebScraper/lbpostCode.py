@@ -9,7 +9,7 @@ from time import sleep
 from random import randint
 sns.set()
 
-
+#disguise as a browser so website does not block us/identify us as web scraper
 headers = ({'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'})
 
 titles = []
