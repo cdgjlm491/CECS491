@@ -47,7 +47,7 @@ function testMarkers() {
         description={"test description 3"}
       />
       <Marker
-        coordinate={{ latitude: 33.7751, longitude: -118.20 }}
+        coordinate={{ latitude: 33.7751, longitude: -118.198 }}
         title={"Test Marker 4"}
         description={"test description 4"}
       />
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   map: {
-    height: "90%",
+    height: "100%",
   },
   contentContainer: {
     paddingTop: 30,
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     opacity: 0.0,
-    height: "90%",
-    width: 15,
+    height: "100%",
+    width: 25,
   },
 });

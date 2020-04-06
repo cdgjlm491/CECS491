@@ -15,7 +15,7 @@ export default function LoginScreen() {
     <View style={styles.container}>
 
       <View style={styles.logoContainer}>
-      <Image source={require('../assets/images/localr_logo.png')} style={styles.image} />
+      <Image source={require('../assets/images/localr_logo_transparent_2.png')} style={styles.image} />
       </View>
 
       <View style={styles.contentContainer}>
