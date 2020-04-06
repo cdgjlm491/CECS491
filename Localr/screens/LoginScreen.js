@@ -70,6 +70,7 @@ export default function LoginScreen() {
 
         </View>
       </TouchableWithoutFeedback>
+      <View style={styles.mapDrawerOverlay} />
     </KeyboardAvoidingView>
   );
 }
@@ -130,5 +131,13 @@ const styles = StyleSheet.create({
   inner: {
     flex: 1,
     justifyContent: "space-around"
+  },
+  mapDrawerOverlay: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    opacity: 0.0,
+    height: "100%",
+    width: 25,
   },
 });

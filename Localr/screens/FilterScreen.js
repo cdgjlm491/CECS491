@@ -53,6 +53,7 @@ export default class FilterScreen extends React.Component {
                 <View style={styles.contentContainer}>
                    {this.checkButtons()}                            
                 </View>
+                <View style={styles.mapDrawerOverlay} />
             </View>
         )
     }
@@ -83,4 +84,12 @@ const styles = StyleSheet.create({
     icon: {
         marginRight: 10
     },
+    mapDrawerOverlay: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        opacity: 0.0,
+        height: "100%",
+        width: 25,
+      },
 });
