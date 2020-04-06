@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { StyleSheet, View, Image, Alert } from 'react-native';
+import { StyleSheet, View, Image, Alert, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Firebase from '../components/Firebase'
-
 
 //it seems like you can use functions or classes, but classes are easier if you are new? cleasses extend react components and functions use hooks to hook onto react components
 export default function LoginScreen() {
@@ -12,61 +11,66 @@ export default function LoginScreen() {
 
   return (
 
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.Os == "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
 
-      <View style={styles.contentContainer}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.contentContainer}>
 
-        <View style={styles.logoContainer}>
-          <Image source={require('../assets/images/localr_logo_transparent_2.png')} style={styles.image} />
+          <View style={styles.logoContainer}>
+            <Image source={require('../assets/images/localr_logo_transparent_2.png')} style={styles.image} />
+          </View>
+
+          <View style={styles.input}>
+            <Input
+              placeholder='Email address'
+              leftIcon={
+                <Icon
+                  name='envelope-square'
+                  size={24}
+                  color='black'
+                  style={styles.icon}
+                />
+              }
+              onChangeText={email => setEmail(email)}
+              value={email}
+            />
+          </View>
+
+          <View style={styles.input}>
+            <Input
+              placeholder='Enter password'
+              leftIcon={
+                <Icon
+                  name='lock'
+                  size={24}
+                  color='black'
+                  style={styles.icon}
+                />
+              }
+              onChangeText={password => setPassword(password)}
+              value={password}
+            />
+          </View>
+
+
+          <View style={styles.button}>
+            <Button title="Log In"
+              onPress={() => LogIn(email, password)}
+            />
+          </View>
+
+          <View style={styles.button}>
+            <Button title="Sign Up"
+              onPress={() => SignUp(email, password)}
+            />
+          </View>
+
         </View>
-
-        <View style={styles.input}>
-          <Input
-            placeholder='Email address'
-            leftIcon={
-              <Icon
-                name='envelope-square'
-                size={24}
-                color='black'
-                style={styles.icon}
-              />
-            }
-            onChangeText={email => setEmail(email)}
-            value={email}
-          />
-        </View>
-
-        <View style={styles.input}>
-          <Input
-            placeholder='Enter password'
-            leftIcon={
-              <Icon
-                name='lock'
-                size={24}
-                color='black'
-                style={styles.icon}
-              />
-            }
-            onChangeText={password => setPassword(password)}
-            value={password}
-          />
-        </View>
-
-
-        <View style={styles.button}>
-          <Button title="Log In"
-            onPress={() => LogIn(email, password)}
-          />
-        </View>
-
-        <View style={styles.button}>
-          <Button title="Sign Up"
-            onPress={() => SignUp(email, password)}
-          />
-        </View>
-
-      </View>
-    </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -103,6 +107,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   contentContainer: {
+    justifyContent: "space-around",
     paddingTop: 15
   },
   button: {
@@ -120,6 +125,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   icon: {
-    marginRight: 10
+    paddingRight: 10
+  },
+  inner: {
+    flex: 1,
+    justifyContent: "space-around"
   },
 });
