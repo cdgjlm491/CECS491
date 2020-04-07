@@ -3,8 +3,6 @@ import { StyleSheet, View} from 'react-native';
 import { CheckBox } from 'react-native-elements'
 
 
-
-
 export default class FilterScreen extends React.Component {
     state = {
         tags: [
@@ -19,7 +17,7 @@ export default class FilterScreen extends React.Component {
     //there must be a better way to do this without so much code reuse
     //todo: more research
 
-    //NOT MINE, updates the state when a checkbox is pressed, this is needed because the state should be immutable.
+    //NOT MINE, updates the state when a checkbox is pressed, this is needed because the state should be immutable. Needs more research.
     //https://stackoverflow.com/a/49502115
     handleChange(e) {
         // 1. Make a shallow copy of the items
@@ -33,6 +31,7 @@ export default class FilterScreen extends React.Component {
         // 5. Set the state to our new copy
         this.setState({tags});
     }
+    //end not mine
 
     checkButtons() {
         const buttons = [];
@@ -54,6 +53,7 @@ export default class FilterScreen extends React.Component {
                 <View style={styles.contentContainer}>
                    {this.checkButtons()}                            
                 </View>
+                <View style={styles.mapDrawerOverlay} />
             </View>
         )
     }
@@ -84,4 +84,12 @@ const styles = StyleSheet.create({
     icon: {
         marginRight: 10
     },
+    mapDrawerOverlay: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        opacity: 0.0,
+        height: "100%",
+        width: 25,
+      },
 });

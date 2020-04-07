@@ -3,9 +3,10 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import FilterScreen from '../screens/FilterScreen';
+import TestScreen from '../screens/TestScreen';
 
 const Drawer = createDrawerNavigator();
-const INITIAL_ROUTE_NAME = 'Home';
+const INITIAL_ROUTE_NAME = 'Login';
 
 export default function DrawerNavigator({ navigation, route }) {
     // Set the header title on the parent stack navigator depending on the
@@ -39,6 +40,14 @@ export default function DrawerNavigator({ navigation, route }) {
           //tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
         }}
       />
+        <Drawer.Screen
+        name="Test"
+        component={TestScreen}
+        options={{
+          title: 'Test',
+          //tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
+        }}
+      />      
     </Drawer.Navigator>
     );
   }
@@ -53,5 +62,7 @@ export default function DrawerNavigator({ navigation, route }) {
         return 'Login'; //Header
       case 'Filter':
         return 'Filter';
+        case 'Test':
+          return 'Test';        
     }
   }

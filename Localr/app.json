@@ -3,7 +3,6 @@
     "name": "Localr",
     "slug": "Localr",
     "privacy": "public",
-    "sdkVersion": "36.0.0",
     "platforms": [
       "ios",
       "android",
@@ -11,10 +10,10 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "icon": "./assets/images/localr_logo.png",
+    "scheme": "localr",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/localr_logo_transparent_2.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
