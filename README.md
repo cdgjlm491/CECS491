@@ -5,9 +5,11 @@ https://expo.io/@aparaxium/Localr
 open qr code on phone with expo app
 
 
+____________________________________________________
 
 
-**if you are on ios, apple made it harder to open.**
+
+**if you are on ios, apple made it harder to open:**
 
 clone this repository
 
