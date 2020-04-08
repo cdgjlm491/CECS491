@@ -34,7 +34,8 @@ function testMarkers() {
       <Marker
         coordinate={{ latitude: 33.7701, longitude: -118.1937 }}
         title={"Test Marker 1"}
-        description={"test description 1"}
+        description={"long test description 1"
+        + "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sodales accumsan sapien, id blandit nunc ornare in. Sed pulvinar id eros et dapibus. Quisque blandit sit amet magna et auctor. Quisque feugiat iaculis ultrices. Pellentesque fringilla ornare risus, sit amet sodales urna varius vel. Nunc rhoncus tristique aliquet. Fusce nec nunc blandit, volutpat purus et, finibus arcu. Nam eget elit nec orci vulputate feugiat nec non libero. Donec eleifend sodales mauris, vel fringilla arcu. "}
       />
       <Marker
         coordinate={{ latitude: 33.7691, longitude: -118.190 }}

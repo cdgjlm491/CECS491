@@ -67,10 +67,9 @@ export default function LoginScreen() {
               onPress={() => SignUp(email, password)}
             />
           </View>
-
+          <View style={styles.mapDrawerOverlay} />
         </View>
       </TouchableWithoutFeedback>
-      <View style={styles.mapDrawerOverlay} />
     </KeyboardAvoidingView>
   );
 }

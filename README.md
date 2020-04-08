@@ -1,23 +1,14 @@
-**Guide to running the app**  
-Install nodejs and npm  
-open command line or terminal inside localr  
-run "npm i"  
-run "npm start"  
+If you are on android:
+https://expo.io/@aparaxium/Localr
+open qr code on phone with expo app
 
 
-**Guide for command line git**  
-git clone 'url of this repo'  
-cd to directory i.e. 'cd CECS491'  
-  
-**start here when making changes and PULL BEFORE YOU CHANGE ANYTHING**  
-git pull  
-
-make changes  
-
-**this adds any files you created/changed to be pushed**  
-git add *  
-git commit -m 'insert message'  
-
-
-**PUSH OFTEN**  
-git push  
+if you are on ios, apple made it harder.
+clone this repository
+open Localr in a terminal or command line
+'npm install'
+'expo start'
+you are now running the app on your computer
+press e on the command line or terminal
+enter your email address to send it a link
+open the link on your phone to run the app
