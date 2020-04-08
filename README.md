@@ -13,6 +13,10 @@ ____________________________________________________
 
 clone this repository
 
+install nodejs:
+
+https://nodejs.org/en/
+
 open Localr in a terminal or command line
 
 'npm install'
