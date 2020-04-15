@@ -1,3 +1,13 @@
+**If you want to run on a webbrowser phone emulator**
+
+Open this link:
+https://expo.io/appetize-simulator?url=https://expo.io/@aparaxium/Localr
+
+
+____________________________________________________
+
+
+
 **If you have an android phone:**
 
 https://expo.io/@aparaxium/Localr
