@@ -9,7 +9,7 @@ export default function HomeScreen() {
       <View style={styles.contentContainer}>
 
         <MapView
-          provider={PROVIDER_GOOGLE} // remove if not using Google Maps?
+          provider={PROVIDER_GOOGLE}
           style={styles.map}
           region={{
             latitude: 33.7701,
