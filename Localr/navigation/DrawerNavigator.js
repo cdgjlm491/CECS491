@@ -3,6 +3,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import FilterScreen from '../screens/FilterScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 
 const Drawer = createDrawerNavigator();
 const INITIAL_ROUTE_NAME = 'Login';
@@ -40,6 +41,14 @@ export default function DrawerNavigator({ navigation, route }) {
           //tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
         }}
       />    
+      <Drawer.Screen
+      name="ForgotPasswordScreen"
+      component={ForgotPasswordScreen}
+      options={{
+        title: 'Reset Password',
+        //tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
+      }}
+      />
     </Drawer.Navigator>
     );
   }
@@ -54,6 +63,7 @@ export default function DrawerNavigator({ navigation, route }) {
       case 'Login':
         return 'Login';
       case 'Filter':
-        return 'Filter';     
+        return 'Filter';  
+      
     }
   }
