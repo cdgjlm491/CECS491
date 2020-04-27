@@ -9,7 +9,7 @@ from time import sleep
 from random import randint
 sns.set()
 
-#disguise as a browser so website does not block us/identify us as web scraper
+
 headers = ({'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'})
 
 titles = []
@@ -18,6 +18,7 @@ times = []
 authors = []
 descs = []
 links = []
+
 
 
 n_pages = 0
@@ -46,6 +47,18 @@ for page in range(0,5):
             link = container.find_all('h2')[0].a.attrs['href']
             links.append(link)
 
+            single = get(link, headers=headers)
+            article_soup = BeautifulSoup(single.text, 'html.parser')
+            article_text = article_soup.find_all('section', class_="container")
+            paragraphs = article_text[0].find_all('p')
+            paragraph_list= []
+            for p in paragraphs:
+                if ("Hyperlocal" not in p.text):
+                    paragraph_list.append(p.text)
+            
+            final = " ".join(paragraph_list)
+            descs.append(final)
+
             #get the timestamp
             timestamp = pd.to_datetime(container.time.attrs['datetime'])
             timestamp = timestamp.replace(tzinfo=None)
@@ -59,13 +72,14 @@ for page in range(0,5):
             tag = container.find_all('small')[1].find_all('li')[0].text
             tags.append(tag)
 
-            #get the descriptions of each article
-            description = container.find_all('section', class_='flex-grow-1')[0].find_all('p')[0].text
-            descs.append(description)
     else:
         break
 
     sleep(randint(1,2))
+
+                     
+
+
 
 print('You scraped {} pages containing {} properties.'.format(n_pages, len(titles)))
 
@@ -77,9 +91,11 @@ longbeachpost = pd.DataFrame({'Title':titles, 'Date Posted':times, 'Author':auth
 
 
 
-longbeachpost.to_excel('lbpost_raw.xls')
+longbeachpost.to_excel('lbpost_excel.xls')
 
+longbeachpost.to_csv('lbpost_csv.csv', index = False)
 
+longbeachpost.to_json('lbpost_final.json')
 
 
 
