@@ -9,7 +9,7 @@ from time import sleep
 from random import randint
 sns.set()
 
-
+#mask our scraper as a browser
 headers = ({'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'})
 
 titles = []
@@ -47,6 +47,7 @@ for page in range(0,5):
             link = container.find_all('h2')[0].a.attrs['href']
             links.append(link)
 
+            #get article content
             single = get(link, headers=headers)
             article_soup = BeautifulSoup(single.text, 'html.parser')
             article_text = article_soup.find_all('section', class_="container")
@@ -77,19 +78,13 @@ for page in range(0,5):
 
     sleep(randint(1,2))
 
-                     
-
-
 
 print('You scraped {} pages containing {} properties.'.format(n_pages, len(titles)))
-
 
 
 cols = ['Title','Date Posted', 'Author', 'Description', 'Tag','Link']
 
 longbeachpost = pd.DataFrame({'Title':titles, 'Date Posted':times, 'Author':authors, 'Description':descs, 'Tag':tags, 'Link':links})[cols]
-
-
 
 longbeachpost.to_excel('lbpost_excel.xls')
 
