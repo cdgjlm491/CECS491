@@ -1,2 +1,0 @@
-Google Maps:
-https://github.com/react-native-community/react-native-maps

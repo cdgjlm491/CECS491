@@ -2,16 +2,16 @@
   "expo": {
     "name": "Localr",
     "slug": "Localr",
-    "privacy": "public",
+    "privacy": "unlisted",
     "platforms": [
       "ios",
-      "android",
-      "web"
+      "android"
     ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/localr_logo.png",
     "scheme": "localr",
+    "sdkVersion": "37.0.0",
     "splash": {
       "image": "./assets/images/localr_logo_transparent_2.png",
       "resizeMode": "contain",
@@ -24,6 +24,8 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.Localr.Localr",
+      "buildNumber": "0.0.1",
       "supportsTablet": true
     },
     "description": ""

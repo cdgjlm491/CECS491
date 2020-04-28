@@ -3,7 +3,6 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import FilterScreen from '../screens/FilterScreen';
-import TestScreen from '../screens/TestScreen';
 
 const Drawer = createDrawerNavigator();
 const INITIAL_ROUTE_NAME = 'Login';
@@ -29,6 +28,7 @@ export default function DrawerNavigator({ navigation, route }) {
           component={LoginScreen}
           options={{
             title: 'Login',
+            swipeEnabled: false
             //tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
           }}
         />
@@ -39,18 +39,11 @@ export default function DrawerNavigator({ navigation, route }) {
           title: 'Filter',
           //tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
         }}
-      />
-        <Drawer.Screen
-        name="Test"
-        component={TestScreen}
-        options={{
-          title: 'Test',
-          //tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
-        }}
-      />      
+      />    
     </Drawer.Navigator>
     );
   }
+
   
   function getHeaderTitle(route) {
     const routeName = route.state?.routes[route.state.index]?.name ?? INITIAL_ROUTE_NAME;
@@ -59,10 +52,8 @@ export default function DrawerNavigator({ navigation, route }) {
       case 'Home':
         return 'Local News';
       case 'Login':
-        return 'Login'; //Header
+        return 'Login';
       case 'Filter':
-        return 'Filter';
-        case 'Test':
-          return 'Test';        
+        return 'Filter';     
     }
   }

@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Firebase from '../components/Firebase'
 
 //it seems like you can use functions or classes, but classes are easier if you are new? cleasses extend react components and functions use hooks to hook onto react components
-export default function LoginScreen() {
+export default function LoginScreen({navigation}) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
@@ -55,16 +55,15 @@ export default function LoginScreen() {
             />
           </View>
 
-
           <View style={styles.button}>
             <Button title="Log In"
-              onPress={() => LogIn(email, password)}
+              onPress={() => LogIn(email, password, navigation)}
             />
           </View>
 
           <View style={styles.button}>
             <Button title="Sign Up"
-              onPress={() => SignUp(email, password)}
+              onPress={() => SignUp(email, password, navigation)}
             />
           </View>
           <View style={styles.mapDrawerOverlay} />
@@ -74,7 +73,8 @@ export default function LoginScreen() {
   );
 }
 
-function SignUp(email, password) {
+function SignUp(email, password, navigation) {
+  //sign up
   try {
     Firebase
       .auth()
@@ -82,21 +82,34 @@ function SignUp(email, password) {
       .then(user => {
         console.log(user);
       });
+
+  //login
+  LogIn(email, password, navigation)
+  
   } catch (error) {
     console.log(error.toString(error));
   }
+
+
+
 };
 
 
-function LogIn(email, password) {
+function LogIn(email, password, navigation) {
   try {
     Firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then(res => {
         console.log(res.user.email);
-        Alert.alert(res.user.email);
       });
+
+  Alert.alert("Logged in!")
+  //go to home screen
+  navigation.navigate('Home')
+  //open drawer
+
+  navigation.openDrawer();
   } catch (error) {
     console.log(error.toString(error));
   }
