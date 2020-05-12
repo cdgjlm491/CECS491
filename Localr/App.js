@@ -8,7 +8,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import DrawerNavigator from './navigation/DrawerNavigator';
 
 import useLinking from './navigation/useLinking';
-
+import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
+import StartScreen from './screens/StartScreen';
+import MainScreen from './screens/Main';
 const Stack = createStackNavigator();
 
 //DISABLES WARNINGS WHEN THE APP IS RUNNING, COMMENT THIS OUT WHEN DOING DEVELOPMENT
@@ -52,14 +54,13 @@ export default function App(props) {
     return null;
   } else {
     return (
-      <View style={styles.container}>
-        {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-        <NavigationContainer >
-          <Stack.Navigator>
-          <Stack.Screen name="Root" component={DrawerNavigator} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </View>
+      <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home" gesture>
+        <Stack.Screen name="StartScreen" component={StartScreen} />
+        <Stack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} />
+        <Stack.Screen name = "MainScreen" component={MainScreen} options={{title: "Home", headerLeft: null, gestureEnabled: false}}/>
+      </Stack.Navigator>
+    </NavigationContainer>
     );
   }
 }

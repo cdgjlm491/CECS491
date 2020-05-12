@@ -42,6 +42,7 @@ export default function LoginScreen({navigation}) {
           <View style={styles.input}>
             <Input
               placeholder='Enter password'
+              secureTextEntry = {true}
               leftIcon={
                 <Icon
                   name='lock'
@@ -56,15 +57,16 @@ export default function LoginScreen({navigation}) {
           </View>
 
           <View style={styles.button}>
-            <Button title="Log In"
+            <Button style={{ width: 200, alignSelf: 'center', marginTop: 10, marginBottom: 10 }} title="Log In"
               onPress={() => LogIn(email, password, navigation)}
             />
           </View>
 
           <View style={styles.button}>
-            <Button title="Sign Up"
+            <Button style={{ width: 200, alignSelf: 'center' }} title="Sign Up"
               onPress={() => SignUp(email, password, navigation)}
             />
+            <Button title="Forgot Password" type="clear" onPress={() => navigation.navigate("ForgotPasswordScreen")}/>
           </View>
           <View style={styles.mapDrawerOverlay} />
         </View>
@@ -74,45 +76,22 @@ export default function LoginScreen({navigation}) {
 }
 
 function SignUp(email, password, navigation) {
-  //sign up
-  try {
-    Firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(user => {
-        console.log(user);
-      });
-
-  //login
-  LogIn(email, password, navigation)
-  
-  } catch (error) {
-    console.log(error.toString(error));
-  }
-
-
-
+  Firebase.auth().createUserWithEmailAndPassword(email, password)
+      .then(function (user) {
+        navigation.navigate('Home');
+      }).catch(function (e) {
+        alert("Invalid email address or password");
+      })
 };
 
 
 function LogIn(email, password, navigation) {
-  try {
-    Firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then(res => {
-        console.log(res.user.email);
-      });
-
-  Alert.alert("Logged in!")
-  //go to home screen
-  navigation.navigate('Home')
-  //open drawer
-
-  navigation.openDrawer();
-  } catch (error) {
-    console.log(error.toString(error));
-  }
+  Firebase.auth().signInWithEmailAndPassword(email, password)
+      .then(function (user) {
+        navigation.navigate("Home");
+      }).catch(function (e) {
+        alert("Invalid email address or password");
+      })
 };
 
 const styles = StyleSheet.create({
