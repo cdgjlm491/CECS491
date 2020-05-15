@@ -1,3 +1,5 @@
+**FOLLOW THESE SET OF INSTRUCTIONS DURING CODE DEMO PRESENTATIONS, IN ORDER TO ACCESS THE APP.**
+
 **If you want to run on a webbrowser phone emulator**
 
 Open this link:
@@ -22,5 +24,3 @@ Scan the qr code on your phone with the expo app or send a link to your email an
 
 
 ____________________________________________________
-
-
