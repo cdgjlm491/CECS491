@@ -8,11 +8,17 @@ ____________________________________________________
 
 
 
-**If you have an android phone:**
+**If you have an android/iOS phone:**
 
-https://expo.io/@aparaxium/Localr
+https://expo.io/@rianajara/Localr
 
-Open the qr code on your phone with the expo app or send a link to your email and open it with the expo app
+iOS users:
+Download the Expo app and sign in.
+Open the link above, and scan the qr code using your phone's camera.
+
+Android users:
+Download the Expo app and sign in.
+Scan the qr code on your phone with the expo app or send a link to your email and open it with the expo app.
 
 
 ____________________________________________________
