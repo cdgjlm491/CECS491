@@ -1,7 +1,7 @@
 **If you want to run on a webbrowser phone emulator**
 
 Open this link:
-https://expo.io/appetize-simulator?url=https://expo.io/@aparaxium/Localr
+https://expo.io/appetize-simulator?url=https://expo.io/@rianajara/Localr
 
 
 ____________________________________________________
@@ -24,11 +24,3 @@ Scan the qr code on your phone with the expo app or send a link to your email an
 ____________________________________________________
 
 
-
-**If you don't have an android phone:**
-
-Download and install the blustacks android emulator
-
-https://www.bluestacks.com/
-
-Follow the instructions above.
