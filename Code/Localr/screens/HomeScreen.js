@@ -2,6 +2,10 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
 
+
+//WASTED TIME ON THIS BECAUSE NO ONE COMMENTED THAT IT IS NOW NOT USED
+
+
 export default function HomeScreen({navigation}) {
   return (
     <View style={styles.container}>
@@ -18,7 +22,7 @@ export default function HomeScreen({navigation}) {
             longitudeDelta: 0.0121,
           }}
         >
-          {testMarkers()}
+        {testMarkers()}
         </MapView>
 
         <View style={styles.mapDrawerOverlay} />
@@ -35,7 +39,8 @@ function testMarkers() {
         coordinate={{ latitude: 33.7701, longitude: -118.1937 }}
         title={"Test Marker 1"}
         description={"long test description 1"
-        + "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sodales accumsan sapien, id blandit nunc ornare in. Sed pulvinar id eros et dapibus. Quisque blandit sit amet magna et auctor. Quisque feugiat iaculis ultrices. Pellentesque fringilla ornare risus, sit amet sodales urna varius vel. Nunc rhoncus tristique aliquet. Fusce nec nunc blandit, volutpat purus et, finibus arcu. Nam eget elit nec orci vulputate feugiat nec non libero. Donec eleifend sodales mauris, vel fringilla arcu. "}
+        + "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sodales accumsan sapien"}
+
       />
       <Marker
         coordinate={{ latitude: 33.7691, longitude: -118.190 }}
@@ -46,11 +51,6 @@ function testMarkers() {
         coordinate={{ latitude: 33.7751, longitude: -118.190 }}
         title={"Test Marker 3"}
         description={"test description 3"}
-      />
-      <Marker
-        coordinate={{ latitude: 33.7751, longitude: -118.198 }}
-        title={"Test Marker 4"}
-        description={"test description 4"}
       />
     </View>
   );

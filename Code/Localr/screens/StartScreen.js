@@ -11,7 +11,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Firebase from '../components/Firebase'
 
 
-const image = { uri: 'https://cdn.discordapp.com/attachments/669659858097930274/682330946405531655/2_logo.png' };
+const image = { uri: 'assets\images\localr_logo_transparent_2.png' };
 
 
 
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
 })
 
 function StartScreen(props) {
-  /** 
+  /**
     constructor(props) {
         super(props);
         this.state = {
@@ -62,7 +62,7 @@ function StartScreen(props) {
         alert("Invalid email address or password");
       })
     }
-      /** 
+      /**
         try {
             firebase
                 .auth()
@@ -87,7 +87,7 @@ function StartScreen(props) {
         alert("Invalid email address or password");
       })
     }
-      /** 
+      /**
         try {
             firebase
                 .auth()
@@ -125,7 +125,7 @@ function StartScreen(props) {
 
                 <Input
 
-                    placeholder='Enter password' 
+                    placeholder='Enter password'
                     secureTextEntry = {true}
                     leftIcon={
                         <Icon
@@ -140,6 +140,8 @@ function StartScreen(props) {
                 <Button style={{ width: 200, alignSelf: 'center', marginTop: 10, marginBottom: 10 }} title="Log In" onPress={() => LogIn(email, password)} />
                 <Button style={{ width: 200, alignSelf: 'center' }} title="Sign Up" onPress={() => SignUp(email, password)} />
                 <Button title="Forgot Password" type="clear" onPress={() => props.navigation.navigate('ForgotPasswordScreen')}/>
+                <Button title="Skip" type="clear" onPress={() => props.navigation.navigate("MainScreen")}/>
+
             </View>
         )
     //}
