@@ -11,7 +11,6 @@ export default function(containerRef) {
           Home: 'home',
           Login: 'login',
           Filter: 'filter',
-          Test: 'test',
         },
       },
     },

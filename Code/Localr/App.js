@@ -1,17 +1,15 @@
 import * as React from 'react';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import DrawerNavigator from './navigation/DrawerNavigator';
-
-import useLinking from './navigation/useLinking';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
-import StartScreen from './screens/StartScreen';
-import MainScreen from './screens/Main';
-const Stack = createStackNavigator();
+import LoginScreen from './screens/LoginScreen';
+import MapScreen from './screens/MapScreen';
+import AuthNavigator from './navigation/AuthNavigator'
+const Stack = createDrawerNavigator();
 
 //DISABLES WARNINGS WHEN THE APP IS RUNNING, COMMENT THIS OUT WHEN DOING DEVELOPMENT
 //console.disableYellowBox = true;
@@ -20,9 +18,7 @@ const Stack = createStackNavigator();
 export default function App(props) {
   //hooks
   const [isLoadingComplete, setLoadingComplete] = React.useState(false);
-  const [initialNavigationState, setInitialNavigationState] = React.useState();
   const containerRef = React.useRef();
-  const { getInitialState } = useLinking(containerRef);
 
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
@@ -31,7 +27,7 @@ export default function App(props) {
         SplashScreen.preventAutoHide();
 
         // Load our initial navigation state
-        setInitialNavigationState(await getInitialState());
+        //setInitialNavigationState(await getInitialState());
 
         // Load fonts
         await Font.loadAsync({
@@ -54,16 +50,11 @@ export default function App(props) {
     return null;
   } else {
     return (
-      <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home" gesture>
-        <Stack.Screen name="StartScreen" component={StartScreen} />
-        <Stack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} />
-        <Stack.Screen name = "MainScreen" component={MainScreen} options={{title: "Home", headerLeft: null, gestureEnabled: false}}/>
-      </Stack.Navigator>
-    </NavigationContainer>
+      <AuthNavigator/>
     );
   }
 }
+
 
 const styles = StyleSheet.create({
   container: {
