@@ -6,25 +6,38 @@ import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
 import CustomCallout from '../components/CustomCallout.js';
 
 
-/*
-const getLocation = () => {
-  if (Platform.OS === 'android' && !Constants.isDevice) {
-    setErrorMsg(
-      'Oops, this will not work on Sketch in an Android emulator. Try it on your device!'
-    );
-  } else {
-    (async () => {
-      let { status } = await Location.requestPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-      }
+const Map = (props) =>  {
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    })();
-  }
-};
-*/
+  //navigator.geolocation.getCurrentPosition
+
+  const [region, setRegion] =  useState({
+    latitude: 33.7701,
+    longitude: -118.1937,
+    latitudeDelta: 0.015,
+    longitudeDelta: 0.0121
+  });
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.contentContainer}>
+
+        <MapView
+          style={styles.map}
+          provider = {PROVIDER_GOOGLE}
+          region = {region}
+          onRegionChangeComplete={region => setRegion(region)}
+        >
+
+          {testMarkers()}
+
+        </MapView>
+
+        <View style={styles.mapDrawerOverlay} />
+
+    </View>
+  </View>
+  )
+}
 
 const testMarkers = (props) =>  {
 
@@ -80,39 +93,25 @@ const testMarkers = (props) =>  {
 
 }
 
-const Map = (props) =>  {
+/*
+const getLocation = () => {
+  if (Platform.OS === 'android' && !Constants.isDevice) {
+    setErrorMsg(
+      'Oops, this will not work on Sketch in an Android emulator. Try it on your device!'
+    );
+  } else {
+    (async () => {
+      let { status } = await Location.requestPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+      }
 
-  //navigator.geolocation.getCurrentPosition
-
-  const [region, setRegion] =  useState({
-    latitude: 33.7701,
-    longitude: -118.1937,
-    latitudeDelta: 0.015,
-    longitudeDelta: 0.0121
-  });
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.contentContainer}>
-
-        <MapView
-          style={styles.map}
-          provider = {PROVIDER_GOOGLE}
-          region = {region}
-          onRegionChangeComplete={region => setRegion(region)}
-        >
-
-          {testMarkers()}
-
-        </MapView>
-
-        <View style={styles.mapDrawerOverlay} />
-
-    </View>
-  </View>
-  )
-}
-export default Map;
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }
+};
+*/
 
 const styles = StyleSheet.create({
   container: {
@@ -145,3 +144,5 @@ const styles = StyleSheet.create({
     width: 25,
   },
 });
+
+export default Map;

@@ -5,12 +5,12 @@ import { Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Firebase from '../components/Firebase'
 
-const image = require('../assets/images/localr_logo_transparent_2.png');
 
 
 const StartScreen = (props) => {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
+    const image = require('../assets/images/localr_logo_transparent_2.png');
 
     return (
         <View style={styles.contentContainer}>
@@ -57,7 +57,6 @@ const StartScreen = (props) => {
         </View>
     )
 }
-export default StartScreen;
 
 
 const AnonLogIn = async () => {
@@ -110,3 +109,5 @@ const styles = StyleSheet.create({
         marginRight: 15
     }
 })
+
+export default StartScreen;

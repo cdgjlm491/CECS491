@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { Text, TextInput, View, StyleSheet, ImageBackground, Image } from 'react-native';
+import { View } from 'react-native';
 import { Button } from 'react-native-elements';
 import { Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as firebase from "firebase";
 
 
-function ForgotPasswordScreen(props) {
+ const ForgotPasswordScreen = (props) => {
   const [email, setEmail] = React.useState("");
-  
+
    const passwordReset = (email_address) => {
     firebase.auth().sendPasswordResetEmail(email_address)
       .then(function (user) {

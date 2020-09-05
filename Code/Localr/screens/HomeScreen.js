@@ -3,17 +3,8 @@ import { View, StyleSheet, Text, TouchableOpacity, Button } from 'react-native'
 import { AuthContext } from '../navigation/AuthNavigator'
 import Firebase from '../components/Firebase'
 
-
 export default function Home() {
     const user = useContext(AuthContext)
-
-  async function logOut() {
-    try {
-      await Firebase.auth().signOut()
-    } catch (e) {
-      console.error(e)
-    }
-  }
 
   return (
     <View style={styles.container}>
@@ -28,6 +19,14 @@ export default function Home() {
     </View>
   )
 }
+
+const logOut = async() => {
+    try {
+      await Firebase.auth().signOut()
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
 const styles = StyleSheet.create({
     container: {

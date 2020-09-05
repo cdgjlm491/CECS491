@@ -3,22 +3,16 @@ import { StyleSheet } from 'react-native';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
-import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
-import LoginScreen from './screens/LoginScreen';
-import MapScreen from './screens/MapScreen';
 import AuthNavigator from './navigation/AuthNavigator'
-const Stack = createDrawerNavigator();
 
 //DISABLES WARNINGS WHEN THE APP IS RUNNING, COMMENT THIS OUT WHEN DOING DEVELOPMENT
 //console.disableYellowBox = true;
 ////////////////////////////////////////////////////////////////////////////////////
 
+//this is one way to create a function in react native, I will be using arrow functions from now on.
 export default function App(props) {
   //hooks
   const [isLoadingComplete, setLoadingComplete] = React.useState(false);
-  const containerRef = React.useRef();
 
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
