@@ -2,36 +2,9 @@ import  React, { useState }  from 'react';
 import { View, StyleSheet, Alert, Linking } from 'react-native';
 import {Text} from 'react-native-elements';
 import Constants from 'expo-constants';
-import { Button } from 'react-native-elements'
-import * as firebase from "firebase";
 import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import FilterScreen from './FilterScreen';
 import CustomCallout from '../components/CustomCallout.js';
 
-
-
-
-const Profile = (props) =>  {
-  const signOutHandler = async () => {
-    try {
-      await firebase.auth().signOut();
-      console.log("Sign out");
-      props.navigation.navigate("StartScreen");
-    } catch (e) {
-      console.log(e);
-    }
-
-  }
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text h3>
-      {firebase.auth().currentUser.email}
-      </Text>
-      <Button style={{ width: 200, alignSelf: 'center' }} title="Log out" onPress={() => signOutHandler()} />
-    </View>
-  )
-}
 
 /*
 const getLocation = () => {
