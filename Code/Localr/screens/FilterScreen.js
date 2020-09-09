@@ -2,7 +2,11 @@ import * as React from 'react';
 import { StyleSheet, View} from 'react-native';
 import { CheckBox } from 'react-native-elements'
 
+////////////////////////////////
 
+// REDO ALL OF THIS
+
+////////////////////////////////
 export default class FilterScreen extends React.Component {
     state = {
         tags: [
@@ -51,7 +55,7 @@ export default class FilterScreen extends React.Component {
         return (
             <View style={styles.container}>
                 <View style={styles.contentContainer}>
-                   {this.checkButtons()}                            
+                   {this.checkButtons()}
                 </View>
                 <View style={styles.mapDrawerOverlay} />
             </View>

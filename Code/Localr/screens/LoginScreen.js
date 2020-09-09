@@ -1,134 +1,114 @@
-import * as React from 'react';
-import { StyleSheet, View, Image, Alert, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Button, Input } from 'react-native-elements';
+import React from 'react';
+import { View, StyleSheet, Image, Alert } from 'react-native';
+import { Button } from 'react-native-elements';
+import { Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Firebase from '../components/Firebase'
+import Forgot from '../screens/ForgotPasswordScreen'
 
-//it seems like you can use functions or classes, but classes are easier if you are new? cleasses extend react components and functions use hooks to hook onto react components
-export default function LoginScreen({navigation}) {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
 
-  return (
 
-    <KeyboardAvoidingView
-      behavior={Platform.Os == "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
+const StartScreen = (props) => {
+    const [email, setEmail] = React.useState("");
+    const [password, setPassword] = React.useState("");
+    const image = require('../assets/images/localr_logo_transparent_2.png');
 
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    return (
         <View style={styles.contentContainer}>
+            <Image source={image} style={styles.smallImage} />
 
-          <View style={styles.logoContainer}>
-            <Image source={require('../assets/images/localr_logo_transparent_2.png')} style={styles.image} />
-          </View>
-
-          <View style={styles.input}>
-            <Input
-              placeholder='Email address'
-              leftIcon={
-                <Icon
-                  name='envelope-square'
-                  size={24}
-                  color='black'
-                  style={styles.icon}
+            <View style={styles.inputContainer}>
+                <Input
+                    placeholder='Email address'
+                    leftIcon={
+                        <Icon
+                            name='envelope-square'
+                            size={24}
+                            color='black'
+                            style={styles.icon}
+                        />
+                    }
+                    onChangeText={text => setEmail(text)}
+                    value={email}
                 />
-              }
-              onChangeText={email => setEmail(email)}
-              value={email}
-            />
-          </View>
+            </View>
 
-          <View style={styles.input}>
-            <Input
-              placeholder='Enter password'
-              secureTextEntry = {true}
-              leftIcon={
-                <Icon
-                  name='lock'
-                  size={24}
-                  color='black'
-                  style={styles.icon}
+            <View style={styles.inputContainer}>
+                <Input
+                    placeholder='Enter password'
+                    secureTextEntry={true}
+                    leftIcon={
+                        <Icon
+                            name='lock'
+                            size={24}
+                            color='black'
+                            style={styles.icon}
+                        />
+                    }
+                    onChangeText={text => setPassword(text)}
                 />
-              }
-              onChangeText={password => setPassword(password)}
-              value={password}
-            />
-          </View>
+            </View>
 
-          <View style={styles.button}>
-            <Button style={{ width: 200, alignSelf: 'center', marginTop: 10, marginBottom: 10 }} title="Log In"
-              onPress={() => LogIn(email, password, navigation)}
-            />
-          </View>
-
-          <View style={styles.button}>
-            <Button style={{ width: 200, alignSelf: 'center' }} title="Sign Up"
-              onPress={() => SignUp(email, password, navigation)}
-            />
-            <Button title="Forgot Password" type="clear" onPress={() => navigation.navigate("ForgotPasswordScreen")}/>
-          </View>
-          <View style={styles.mapDrawerOverlay} />
+            <View style={styles.buttonContainer}>
+                <Button style={styles.smallButton} title="Log In" onPress={() => LogIn(email, password)} />
+                <Button style={styles.smallButton} title="Sign Up" onPress={() => SignUp(email, password)} />
+                <Button style={styles.smallButton} type="clear" title="Forgot Password" onPress={() => props.navigation.navigate('Forgot Password')} />
+                <Button style={styles.smallButton} title="Sign In Anonymously (temp, for dev)" onPress={() => AnonLogIn()} />
+            </View>
         </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
-  );
+    )
 }
 
-function SignUp(email, password, navigation) {
-  Firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then(function (user) {
-        navigation.navigate('Home');
-      }).catch(function (e) {
-        alert("Invalid email address or password");
-      })
-};
 
+const AnonLogIn = async () => {
+    try {
+        await Firebase.auth().signInAnonymously()
+    } catch (e) {
+        alert(e)
+    }
+}
 
-function LogIn(email, password, navigation) {
-  Firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(function (user) {
-        navigation.navigate("Home");
-      }).catch(function (e) {
-        alert("Invalid email address or password");
-      })
-};
+const LogIn = async (email, password) => {
+    try {
+        await Firebase.auth().signInWithEmailAndPassword(email, password)
+    } catch (e) {
+        alert(e)
+    }
+}
+
+const SignUp = async (email, password) => {
+    try {
+        await Firebase.auth().createUserWithEmailAndPassword(email, password)
+    } catch (e) {
+        alert(e)
+    }
+}
+
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
-  contentContainer: {
-    justifyContent: "space-around",
-    paddingTop: 15
-  },
-  button: {
-    paddingTop: 10
-  },
-  input: {
-    paddingTop: 10
-  },
-  image: {
-    height: 200,
-    width: 200,
-    resizeMode: 'contain',
-  },
-  logoContainer: {
-    alignItems: 'center',
-  },
-  icon: {
-    paddingRight: 10
-  },
-  inner: {
-    flex: 1,
-    justifyContent: "space-around"
-  },
-  mapDrawerOverlay: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    opacity: 0.0,
-    height: "100%",
-    width: 25,
-  },
-});
+    contentContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 15
+    },
+    smallImage: {
+        width: 200,
+        height: 200
+    },
+    inputContainer: {
+        width: '100%',
+        marginBottom: 10
+    },
+    buttonContainer: {
+        height: '40%',
+        justifyContent: 'space-around'
+    },
+    smallButton: {
+    },
+    icon: {
+        marginRight: 15
+    }
+})
+
+export default StartScreen;
