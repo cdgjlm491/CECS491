@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext } from 'react'
 import Firebase from '../components/Firebase'
-import SignInStack from './SignInDrawer'
+import SignInDrawer from './SignInDrawer'
 import SignOutStack from './SignOutStack'
 
 //read this to understand what is happening, there are two navigation containers depending if you are logged in or not, this file chooses which container to use.
