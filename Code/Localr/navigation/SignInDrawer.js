@@ -12,8 +12,8 @@ export default function SignInStack() {
   return (
     <NavigationContainer>
       <Drawer.Navigator
-      openByDefault= {true}
-      edgeWidth = {25}>
+        openByDefault= {true}
+        edgeWidth = {25}>
         <Drawer.Screen name="Home" component={Home} />
         <Drawer.Screen name="Map" component={Map} />
         <Drawer.Screen name="Filter" component={Filter} />

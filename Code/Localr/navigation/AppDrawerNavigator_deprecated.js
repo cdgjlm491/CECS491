@@ -1,3 +1,4 @@
+/*
 import * as React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeScreen from '../screens/Mapcreen';
@@ -50,3 +51,4 @@ export default function AppDrawerNavigator({ navigation, route }) {
 
     }
   }
+  */

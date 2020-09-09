@@ -4,6 +4,7 @@ import { Button } from 'react-native-elements';
 import { Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Firebase from '../components/Firebase'
+import Forgot from '../screens/ForgotPasswordScreen'
 
 
 
@@ -51,7 +52,7 @@ const StartScreen = (props) => {
             <View style={styles.buttonContainer}>
                 <Button style={styles.smallButton} title="Log In" onPress={() => LogIn(email, password)} />
                 <Button style={styles.smallButton} title="Sign Up" onPress={() => SignUp(email, password)} />
-                <Button style={styles.smallButton} type="clear" title="Forgot Password" onPress={() => props.navigation.navigate('ForgotPasswordScreen')} />
+                <Button style={styles.smallButton} type="clear" title="Forgot Password" onPress={() => props.navigation.navigate('Forgot Password')} />
                 <Button style={styles.smallButton} title="Sign In Anonymously (temp, for dev)" onPress={() => AnonLogIn()} />
             </View>
         </View>
