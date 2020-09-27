@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AuthNavigator from './navigation/AuthNavigator'
 
 //DISABLES WARNINGS WHEN THE APP IS RUNNING, COMMENT THIS OUT WHEN DOING DEVELOPMENT
-//console.disableYellowBox = true;
+console.disableYellowBox = true;
 ////////////////////////////////////////////////////////////////////////////////////
 
 //this is one way to create a function in react native, I will be using arrow functions from now on.
