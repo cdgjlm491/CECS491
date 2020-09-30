@@ -85,7 +85,7 @@ const SignUp = async (email, password) => {
             Age: 0,
             Email: email,
             Interests: [],
-            Name: ""
+            Name: "N/A"
         }
         console.log(userData);
         //create an article object
