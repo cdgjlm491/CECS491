@@ -7,9 +7,12 @@ import Firebase from '../components/Firebase';
 import * as firebase from "firebase";
 import {Button} from 'react-native-elements';
 import { useRoute } from '@react-navigation/core';
-import SelectMultiple from 'react-native-select-multiple'
-import MultiSelect from 'react-native-multiple-select'
+import SelectMultiple from 'react-native-select-multiple';
+import MultiSelect from 'react-native-multiple-select';
 
+ 
+// Import Interfaces`
+import { ICountry, IState, ICity } from 'country-state-city'
 var firestore = Firebase.firestore();
 
 const update = async(name, age, interests) => {
@@ -58,7 +61,7 @@ const UpdateProfile = () => {
     const [age, setAge] = React.useState("");
     const [interests, setInterests] = React.useState([]);
 
-    //const fruits = ['Education', 'Health', 'Travel', 'Cars', 'Sports'];
+    
     const items = [{
         id: 'Sports',
         name: 'Sports',
@@ -81,7 +84,6 @@ const UpdateProfile = () => {
 
     return (
         <View style={styles.container}>
-        
         <View style={styles.content}>
         <Input 
             placeholder='Name'
@@ -115,11 +117,13 @@ const UpdateProfile = () => {
           submitButtonColor="#CCC"
           submitButtonText="Submit"
         />
+        
         <Button style={styles.button}
             title = "Save"
             onPress = {() => update(name, age, interests)}
             
            />
+        
         </View>
         
         
