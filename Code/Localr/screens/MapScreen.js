@@ -1,14 +1,16 @@
 import  React, { useState }  from 'react';
-import { View, StyleSheet, Alert, Linking } from 'react-native';
+import { View, StyleSheet, Alert, Linking, Button } from 'react-native';
 import {Text} from 'react-native-elements';
 import Constants from 'expo-constants';
 import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
 import CustomCallout from '../components/CustomCallout.js';
+import Firebase from '../components/Firebase'
+import GoogleMap from '../components/MapComponent'
 
 
-const Map = (props) =>  {
+const MapScreen = (props) =>  {
 
-  //navigator.geolocation.getCurrentPosition
+  const [markersLoaded, setMarkersLoaded] = useState(false);
 
   const [region, setRegion] =  useState({
     latitude: 33.7701,
@@ -17,81 +19,102 @@ const Map = (props) =>  {
     longitudeDelta: 0.0121
   });
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.contentContainer}>
+  const [markerList, setMarkerList] = useState([{
+    "Headline": "filler",
+    "Description": "filler",
+    "Url": "filler",
+    "Coordinates": {
+      "Latitude": 0,
+      "Longitude": 0,
+    },
+  }]);
 
-        <MapView
-          style={styles.map}
-          provider = {PROVIDER_GOOGLE}
-          region = {region}
-          onRegionChangeComplete={region => setRegion(region)}
-        >
+return (
+  <View>
+      <MapView
+      style={styles.map}
+      provider = {PROVIDER_GOOGLE}
+      region = {region}
+      onRegionChangeComplete={region => setRegion(region)}
+      >
 
-          {testMarkers()}
+      {displayMarkers(markerList)}
 
-        </MapView>
-
-        <View style={styles.mapDrawerOverlay} />
-
-    </View>
+    </MapView>
+    <Button title = 'Update Markers from Database' onPress = {() => pullMarkers().then(a => setMarkerList(a))}></Button>
   </View>
   )
 }
 
-const testMarkers = (props) =>  {
 
-  const articles = [{"lat":33.7701,"long":-118.1937, "title":"Test Marker 1", "desc":"Lorem ipsum dolor sit amet, consectetur adipiscing elit.", "url":"https://www.csulb.edu/apply"},
-                {"lat":33.7691,"long":-118.190, "title":"Test Marker 2", "desc":"Vivamus sit amet sem finibus, porttitor tellus non, dictum magna.", "url":"https://www.csulb.edu/"},
-                {"lat":33.7751,"long":-118.190, "title":"Test Marker 3", "desc":"Aenean egestas arcu molestie erat laoreet, et faucibus tortor blandit", "url":"https://twitter.com/csulb"},
-                {"lat":33.7751,"long":-118.198, "title":"Test Marker 4", "desc":"Praesent nec enim ligula.", "url":"https://www.instagram.com/csulongbeach/"}]
+const pullMarkers = async () => {
+  const collectionName = "Testing Data"
+  const db = Firebase.firestore();
+  const ref = db.collection(collectionName);
+  const snapshot = await ref.get();
+  articles = []
+  if (snapshot.empty) {
+      Alert.alert('No matching documents.');
+      return;
+  }
+  else {
+      snapshot.forEach(doc => {
+          articles.push({"Headline":doc.data().Headline, "Description":doc.data().Description, "Url":doc.data().Url, "Coordinates": {"Latitude":doc.data().Coordinates.latitude,"Longitude":doc.data().Coordinates.longitude,}});
+      })
+      console.log(articles);
+      return articles;
+  }
+}
 
-  const markerList = articles.map((article) =>
+const displayMarkers = (articles) =>  {
 
-  <Marker
-    key = {article.url}
-    coordinate = {{ latitude: article.lat, longitude: article.long }}
-    title = {article.title}
-    description = {article.desc}
-    onPress={ e => {
-      Alert.alert(' ',"You clicked the marker, we can use this to bring up a new screen.")
-    }}>
+const markerList = articles.map((article) =>
+<Marker
+  key = {article.Url}
+  coordinate = {{ latitude: article.Coordinates.Latitude, longitude: article.Coordinates.Longitude }}
+  title = {article.Headline}
+  description = {article.Description}
+  onPress={ e => {
+    Alert.alert(' ',"You clicked the marker, we can use this to bring up a new screen.")
+  }}>
 
-      <Callout
-        alphaHitTest
-        tooltip
-        onPress={e => {
-          if (
-            e.nativeEvent.action === 'marker-inside-overlay-press' ||
-            e.nativeEvent.action === 'callout-inside-press'
-          ) {
-            Linking.openURL(article.url)
-          }
+    <Callout
+      alphaHitTest
+      tooltip
+      onPress={e => {
+        if (
+          e.nativeEvent.action === 'marker-inside-overlay-press' ||
+          e.nativeEvent.action === 'callout-inside-press'
+        ) {
+          Linking.openURL(article.url)
+        }
 
-          Alert.alert(article.title, "This will probably need to be another screen, the data of the marker is accessable as follows\n" + article.title + "\n" + article.desc + "\n"+ article.url,
-          [
-            {
-              text: 'Open Article',
-              onPress: () => Linking.openURL(article.url)
-            }] );
-        }}
-      >
+        Alert.alert(article.title, "This will probably need to be another screen, the data of the marker is accessable as follows\n" + article.title + "\n" + article.desc + "\n"+ article.url,
+        [
+          {
+            text: 'Open Article',
+            onPress: () => Linking.openURL(article.url)
+          }] );
+      }}
+    >
 
-        <CustomCallout>
-          <Text>{'Clicking this should bring you to a new screen with more info about the article. The following is a test to see how much text fits in here.' +
-          'Aenean egestas arcu molestie erat laoreet, et faucibus tortor blandit. Aenean egestas arcu molestie erat laoreet, et faucibus tortor blandit.'}</Text>
-        </CustomCallout>
+      <CustomCallout>
+        <Text>{'Clicking this should bring you to a new screen with more info about the article. The following is a test to see how much text fits in here.' +
+        'Aenean egestas arcu molestie erat laoreet, et faucibus tortor blandit. Aenean egestas arcu molestie erat laoreet, et faucibus tortor blandit.'}</Text>
+      </CustomCallout>
 
-      </Callout>
-  </Marker>);
+    </Callout>
+</Marker>);
 
-  return (
-    <View>
-      {markerList}
-    </View>
-  );
+return (
+  <View>
+    {markerList}
+  </View>
+);
 
 }
+
+
 
 /*
 const getLocation = () => {
@@ -130,11 +153,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  map: {
-    height: "100%",
-    width: "100%",
-    //...StyleSheet.absoluteFillObject,
-  },
   mapDrawerOverlay: {
     position: 'absolute',
     left: 0,
@@ -143,6 +161,11 @@ const styles = StyleSheet.create({
     //height: "100%",
     width: 25,
   },
+  map: {
+    height: "90%",
+    width: "100%",
+    //...StyleSheet.absoluteFillObject,
+  }
 });
 
-export default Map;
+export default MapScreen;
