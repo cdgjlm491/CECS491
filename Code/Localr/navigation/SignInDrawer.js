@@ -4,7 +4,6 @@ import { createDrawerNavigator } from '@react-navigation/drawer'
 import Home from '../screens/HomeScreen.js'
 import Filter from '../screens/FilterScreen.js'
 import Map from '../screens/MapScreen.js'
-=======
 //import ProfileApp from '../screens/ProfileScreen.js'
 import ProfileStack from './ProfileStack'
 import Test from '../screens/TestScreen'
