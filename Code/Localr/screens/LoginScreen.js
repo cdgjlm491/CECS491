@@ -6,6 +6,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Firebase from '../components/Firebase'
 import Forgot from '../screens/ForgotPasswordScreen'
 
+var firestore = Firebase.firestore();
+
 
 
 const StartScreen = (props) => {
@@ -79,6 +81,15 @@ const LogIn = async (email, password) => {
 const SignUp = async (email, password) => {
     try {
         await Firebase.auth().createUserWithEmailAndPassword(email, password)
+        const userData = {
+            Age: 0,
+            Email: email,
+            Interests: [],
+            Name: "N/A"
+        }
+        console.log(userData);
+        //create an article object
+        await firestore.collection('NewUsers').doc(email).set(userData);
     } catch (e) {
         alert(e)
     }
