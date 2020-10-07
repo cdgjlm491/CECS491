@@ -67,13 +67,7 @@ app = Flask(__name__)
 @app.route('/')
 def labeler() :
 	target = os.environ.get("TARGET", "check!!!")
-	
-	return "{}\n".format(target)
 
-
-if __name__ == "__main__" :
-	app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
-	
 	print("opening samples.json...")
 	# ~ sample = open("samples.json", 'r')
 	
@@ -90,5 +84,13 @@ if __name__ == "__main__" :
 	
 	# ~ print(labeler.inverse_transform(response))
 	# ~ sample.close()
-	print("\nDONE")
+	print("\nDONE")	
+	
+	return "{}\n".format(target)
+
+
+if __name__ == "__main__" :
+	app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+	
+
 
