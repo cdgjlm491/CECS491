@@ -5,7 +5,6 @@ import Constants from 'expo-constants';
 import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
 import CustomCallout from '../components/CustomCallout.js';
 import Firebase from '../components/Firebase'
-import GoogleMap from '../components/MapComponent'
 
 
 const MapScreen = (props) =>  {
@@ -35,7 +34,7 @@ return (
       style={styles.map}
       provider = {PROVIDER_GOOGLE}
       region = {region}
-      onRegionChangeComplete={region => setRegion(region)}
+      //onRegionChangeComplete={region => setRegion(region)}
       >
 
       {displayMarkers(markerList)}

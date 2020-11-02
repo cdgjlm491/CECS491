@@ -7,6 +7,8 @@ import Map from '../screens/MapScreen.js'
 //import ProfileApp from '../screens/ProfileScreen.js'
 import ProfileStack from './ProfileStack'
 import Test from '../screens/TestScreen'
+import Testa from '../screens/TestScreen2'
+import Testb from '../screens/TestScreen3'
 
 const Drawer = createDrawerNavigator()
 
@@ -21,6 +23,8 @@ export default function SignInStack() {
         <Drawer.Screen name="Map" component={Map} />
         <Drawer.Screen name="Filter" component={Filter} />
         <Drawer.Screen name="Test" component={Test} />
+        <Drawer.Screen name="Test2" component={Testa} />
+        <Drawer.Screen name="Test3" component={Testb} />
       </Drawer.Navigator>
     </NavigationContainer>
   )
