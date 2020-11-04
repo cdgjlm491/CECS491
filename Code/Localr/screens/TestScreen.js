@@ -6,6 +6,7 @@ import MapView, { Marker, PROVIDER_GOOGLE, Callout, MAP_TYPES } from 'react-nati
 import CustomCallout from '../components/CustomCallout.js';
 import * as geofirestore from 'geofirestore';
 import 'firebase/firestore';
+import geohash from "ngeohash";
 
 const Test = () => {
 
@@ -73,7 +74,7 @@ const Test = () => {
         </Text>
       </View>
       <Button title = 'Update Markers from Database' onPress = {() => pullMarkers().then(a => setMarkerList(a))}></Button>
-      <Button title = 'Restricted Markers' onPress = {() => mapRef.current.getMapBoundaries().then(x => pullMarkers2(x, region).then(a => setMarkerList(a)))}></Button>
+      <Button title = 'Restricted Markers' onPress = {() => mapRef.current.getMapBoundaries().then(x => pullMarkers2(x).then(a => setMarkerList(a)))}></Button>
       <Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>
 
 
@@ -106,18 +107,27 @@ const pullMarkers = async () => {
   }
 }
 
-const pullMarkers2 = async (x, region) => {
-  console.log(region)
-  //let lesserGeo = new GeoPoint( x.southWest.latitude, x.southWest.longitude)
-  //let greaterGeo = new GeoPoint( x.northEast.latitude, x.northEast.longitude)
+const pullMarkers2 = async (x) => {
+  //console.log(region)
+  //console.log(x.northEast.latitude)
+  const southWest = geohash.encode(x.southWest.latitude, x.southWest.longitude)
+  const northEast = geohash.encode(x.northEast.latitude, x.northEast.longitude)
   const collectionName = "Testing Data"
   const db = Firebase.firestore();
-  const gdb = geofirestore.initializeApp(db);
-  const ref = gdb.collection(collectionName)
-  const q = ref.near({ center: new Firebase.firestore.GeoPoint(region.latitude, region.longitude), radius: 1000 });
-  q.get().then((value) => {
-    console.log(value.docs)
-  })
+  const ref = db.collection(collectionName)
+  articles = []
+  const snapshot = await ref.where("Geohash", ">=", southWest).where("Geohash", "<=", northEast).get();
+  if (snapshot.empty) {
+    //Alert.alert('No matching documents.');
+    return [];
+}
+else {
+    snapshot.forEach(doc => {
+        articles.push({"Headline":doc.data().Headline, "Description":doc.data().Description, "Url":doc.data().Url, "Filter":doc.data().Filter,  "Coordinates": {"Latitude":doc.data().Coordinates.latitude,"Longitude":doc.data().Coordinates.longitude,}});
+    })
+    console.log(articles);
+    return articles;
+}
 }
 
 const displayMarkers = (articles) =>  {
