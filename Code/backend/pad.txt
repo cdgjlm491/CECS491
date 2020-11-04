@@ -1,0 +1,17 @@
+---
+DOCKER
+---
+PORT=8080 && docker run -it \
+-p 9090:${PORT} \
+-e PORT=${PORT} \
+collector:16
+
+PORT=8080 && docker run -it \
+-p 9090:${PORT} \
+-e PORT=${PORT} \
+-e K_SERVICE=dev \
+-e K_CONFIGURATION=dev \
+-e K_REVISION=dev-00001 \
+-e GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/key.json \
+-v $GOOGLE_APPLICATION_CREDENTIALS:/tmp/keys/key.json:ro \
+container:ver
