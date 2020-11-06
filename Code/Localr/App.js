@@ -4,6 +4,7 @@ import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import AuthNavigator from './navigation/AuthNavigator'
+import * as Permissions from 'expo-permissions';
 
 //DISABLES WARNINGS WHEN THE APP IS RUNNING, COMMENT THIS OUT WHEN DOING DEVELOPMENT
 console.disableYellowBox = true;
@@ -13,7 +14,7 @@ console.disableYellowBox = true;
 export default function App(props) {
   //hooks
   const [isLoadingComplete, setLoadingComplete] = React.useState(false);
-
+  const [permission, askForPermission] = Permissions.usePermissions(Permissions.LOCATION, { ask: true });
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
     async function loadResourcesAndDataAsync() {

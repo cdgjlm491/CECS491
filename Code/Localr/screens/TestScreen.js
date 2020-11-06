@@ -4,9 +4,9 @@ import Firebase from '../components/Firebase'
 import * as Location from 'expo-location';
 import MapView, { Marker, PROVIDER_GOOGLE, Callout, MAP_TYPES } from 'react-native-maps';
 import CustomCallout from '../components/CustomCallout.js';
-import * as geofirestore from 'geofirestore';
 import 'firebase/firestore';
 import geohash from "ngeohash";
+import * as Linking from 'expo-linking';
 
 const Test = () => {
 
@@ -33,8 +33,11 @@ const Test = () => {
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
       }
-
-      let location = await Location.getCurrentPositionAsync({});
+      let locationServiceStatus  = await Location.hasServicesEnabledAsync()
+      if (!locationServiceStatus) {
+        setErrorMsg('Location service is disabled or inaccesable.');
+      }
+      let location = await Location.getCurrentPositionAsync();
       setRegion({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -45,12 +48,19 @@ const Test = () => {
   }, []);
 
   //attempting to get location
-  let view = <Text style={styles.notify}>Getting Location..</Text>;
-  //location not found
+  let view =
+  <View style={styles.center}>
+  <Text>Getting Location..</Text>
+  </View>;
+  //error getting location
   if (errorMsg) {
-    view = <Text>{errorMsg}</Text>;
+    view =
+    <View style={styles.center}>
+    <Text>{errorMsg}</Text>
+    </View>;
+  }
   //location was found
-  } else if (region) {
+  else if (region) {
     view =
     <View style={styles.container}>
     <MapView style={styles.map}
@@ -59,9 +69,7 @@ const Test = () => {
     initialRegion = {region}
     //mapType={MAP_TYPES.HYBRID}
     onRegionChange={region => setRegion(region)}
-    //timeout is needed because without it onregionchangecomplete get called multiple times beacuse the map is still slowly moving?
-
-    onRegionChangeComplete={() => {mapRef.current.getMapBoundaries().then(x => pullMarkers2(x, region).then(a => setMarkerList(a)))}}
+    onRegionChangeComplete={() => {mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))}}
     >
 
     {displayMarkers(markerList)}
@@ -73,11 +81,8 @@ const Test = () => {
           {region.longitude.toPrecision(7)}
         </Text>
       </View>
-      <Button title = 'Update Markers from Database' onPress = {() => pullMarkers().then(a => setMarkerList(a))}></Button>
-      <Button title = 'Restricted Markers' onPress = {() => mapRef.current.getMapBoundaries().then(x => pullMarkers2(x).then(a => setMarkerList(a)))}></Button>
+      <Button title = 'Restricted Markers' onPress = {() => mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))}></Button>
       <Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>
-
-
     </View>
   }
 
@@ -88,44 +93,25 @@ const Test = () => {
   );
 }
 
-const pullMarkers = async () => {
-  const collectionName = "Testing Data"
-  const db = Firebase.firestore();
-  const ref = db.collection(collectionName);
-  const snapshot = await ref.get();
-  articles = []
-  if (snapshot.empty) {
-      Alert.alert('No matching documents.');
-      return;
-  }
-  else {
-      snapshot.forEach(doc => {
-          articles.push({"Headline":doc.data().Headline, "Description":doc.data().Description, "Url":doc.data().Url, "Filter":doc.data().Filter,  "Coordinates": {"Latitude":doc.data().Coordinates.latitude,"Longitude":doc.data().Coordinates.longitude,}});
-      })
-      console.log(articles);
-      return articles;
-  }
-}
 
-const pullMarkers2 = async (x) => {
-  //console.log(region)
-  //console.log(x.northEast.latitude)
-  const southWest = geohash.encode(x.southWest.latitude, x.southWest.longitude)
-  const northEast = geohash.encode(x.northEast.latitude, x.northEast.longitude)
+const pullMarkers = async (mapborder) => {
+  articles = []
+  const southWest = geohash.encode(mapborder.southWest.latitude, mapborder.southWest.longitude)
+  const northEast = geohash.encode(mapborder.northEast.latitude, mapborder.northEast.longitude)
   const collectionName = "Testing Data"
   const db = Firebase.firestore();
   const ref = db.collection(collectionName)
-  articles = []
   const snapshot = await ref.where("Geohash", ">=", southWest).where("Geohash", "<=", northEast).get();
   if (snapshot.empty) {
     //Alert.alert('No matching documents.');
+    //no articles in location, return empty array
     return [];
 }
 else {
     snapshot.forEach(doc => {
         articles.push({"Headline":doc.data().Headline, "Description":doc.data().Description, "Url":doc.data().Url, "Filter":doc.data().Filter,  "Coordinates": {"Latitude":doc.data().Coordinates.latitude,"Longitude":doc.data().Coordinates.longitude,}});
     })
-    console.log(articles);
+    console.log(articles.length);
     return articles;
 }
 }
@@ -147,22 +133,7 @@ const displayMarkers = (articles) =>  {
       <Callout
         alphaHitTest
         tooltip
-        onPress={e => {
-          if (
-            e.nativeEvent.action === 'marker-inside-overlay-press' ||
-            e.nativeEvent.action === 'callout-inside-press'
-          ) {
-            Linking.openURL(article.Url)
-          }
-
-          Alert.alert('This will probably need to be another screen, the data of the marker is accessable as follows\n' + article.Headline + '\n' + article.Description
-          + '\n'+ article.Url,
-          [
-            {
-              text: 'Open Article',
-              onPress: () => Linking.openURL(article.Url)
-            }] );
-        }}
+        onPress={e => {Linking.openURL(article.Url)}}
       >
 
         <CustomCallout>
@@ -188,6 +159,11 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+  },
+  center: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   notify: {
     fontSize: 35
