@@ -89,8 +89,8 @@ def gen_id(news_item) :
     '''
     return news_item["geohash"] + '_' + news_item["datePublished"]
     
-def locate(news_lst) :
-    '''Temporary geohasher assigns random long beach locations; also 
+def locate(news_lst, city) :
+    '''Temporary geohasher assigns random locations based on city parameter; also 
     assigns unique id's
     
     ARGS
@@ -102,11 +102,35 @@ def locate(news_lst) :
     ---
     list of news articles in format ...
     '''
-    max_lat = 33.8765
-    min_lat = 33.7664
-    max_lon = -118.0997
-    min_lon = -118.2042
+    #long beach values
+    if (city == "long-beach"):
+        max_lat = 33.8765
+        min_lat = 33.7664
+        max_lon = -118.0997
+        min_lon = -118.2042
+
+    #cerritos values
+    elif (city == "cerritos"):
+        max_lat = 33.8879
+        min_lat = 33.8459
+        max_lon = -118.0287
+        min_lon = -118.1085
     #
+    #bellflower values
+    elif (city == "bellflower"):
+        max_lat = 33.9105
+        min_lat = 33.8656
+        max_lon = -118.1067
+        min_lon = -118.1514
+    #
+    #lakewood values
+    elif (city == "lakewood"):
+        max_lat = 33.8692
+        min_lat = 33.8202
+        max_lon = -118.0590
+        min_lon = -118.1677
+
+
     rand.seed()
     #
     for item in news_lst :
@@ -131,9 +155,9 @@ vectorizer = joblib.load("vectorizer_02.joblib")
 @app.route('/')
 def collect() :
     # scrape
-    news = webscrape("long-beach", subscription_key, search_url)
+    news = webscrape("lakewood", subscription_key, search_url)
     # geohash and id
-    news_lst = locate(news)
+    news_lst = locate(news,"lakewood")
     # label
     ln = LabelNews(labeler, model, news_lst, vectorizer)
     news_lst = ln.assign_topics()
