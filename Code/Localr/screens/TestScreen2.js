@@ -1,137 +1,168 @@
-import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Text, TouchableOpacity, Button, Alert } from 'react-native'
+import React, { useState, useEffect, useRef } from 'react'
+import { View, StyleSheet, Text, Button, Alert } from 'react-native'
 import Firebase from '../components/Firebase'
 import * as Location from 'expo-location';
-import MapView, { Marker, PROVIDER_GOOGLE, Callout, ProviderPropType, MAP_TYPES  } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE, Callout, MAP_TYPES } from 'react-native-maps';
 import CustomCallout from '../components/CustomCallout.js';
-import Constants from 'expo-constants';
+import 'firebase/firestore';
+import geohash from "ngeohash";
+import * as Linking from 'expo-linking';
+
+const Test = () => {
 
 
+  const [region, setRegion] =  useState(null);
+  const mapRef = useRef(null)
+  const [errorMsg, setErrorMsg] = useState(null);
 
-const LATITUDE = 37.78825;
-const LONGITUDE = -122.4324;
-const SPACE = .01;
-const LATITUDE_DELTA = 0;
-const LONGITUDE_DELTA = 0;
+  const [markerList, setMarkerList] = useState([{
+    'Headline': 'filler',
+    'Description': 'filler',
+    'Url': 'filler',
+    'Topic': 'filler',
+    'Geohash': 'filler',
+    'Publish Date':  'filler',
+    'Org': 'filler'
+    //'Coordinates': {
+      //'Latitude': 0.1,
+      //'Longitude': 0.1,
+    //},
+  }]);
 
-class Test2 extends React.Component {
-  constructor(props) {
-    super(props);
 
-    this.state = {
-      region: {
-        latitude: LATITUDE,
-        longitude: LONGITUDE,
-        latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTA,
-      },
-    };
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+      }
+      let locationServiceStatus  = await Location.hasServicesEnabledAsync()
+      if (!locationServiceStatus) {
+        setErrorMsg('Location service is disabled or inaccesable.');
+      }
+      let location = await Location.getCurrentPositionAsync();
+      setRegion({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.1
+      })
+    })();
+  }, []);
+
+  //attempting to get location
+  let view =
+  <View style={styles.center}>
+  <Text>Getting Location..</Text>
+  </View>;
+  //error getting location
+  if (errorMsg) {
+    view =
+    <View style={styles.center}>
+    <Text>{errorMsg}</Text>
+    </View>;
   }
+  //location was found
+  else if (region) {
+    view =
+    <View style={styles.container}>
+    <MapView style={styles.map}
+    provider = {PROVIDER_GOOGLE}
+    ref={mapRef}
+    initialRegion = {region}
+    //mapType={MAP_TYPES.HYBRID}
+    onRegionChange={region => setRegion(region)}
+    onRegionChangeComplete={() => {mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))}}
+    >
 
-  onRegionChange(region) {
-    this.setState({ region });
-  }
+    {displayMarkers(markerList)}
 
-  jumpRandom() {
-    this.setState({ region: this.randomRegion() });
-  }
-
-  animateRandom() {
-    this.map.animateToRegion(this.randomRegion());
-  }
-
-  animateRandomCoordinate() {
-    this.map.animateCamera({ center: this.randomCoordinate() });
-  }
-
-  animateToRandomBearing() {
-    this.map.animateCamera({ heading: this.getRandomFloat(-360, 360) });
-  }
-
-  animateToRandomViewingAngle() {
-    this.map.animateCamera({ pitch: this.getRandomFloat(0, 90) });
-  }
-
-  getRandomFloat(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  randomCoordinate() {
-    const region = this.state.region;
-    return {
-      latitude:
-        region.latitude + (Math.random() - 0.5) * (region.latitudeDelta / 2),
-      longitude:
-        region.longitude + (Math.random() - 0.5) * (region.longitudeDelta / 2),
-    };
-  }
-
-  randomRegion() {
-    return {
-      ...this.state.region,
-      ...this.randomCoordinate(),
-    };
-  }
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <MapView
-          provider={this.props.provider}
-          ref={ref => {
-            this.map = ref;
-          }}
-          mapType={MAP_TYPES.TERRAIN}
-          style={styles.map}
-          initialRegion={this.state.region}
-          onRegionChange={region => this.onRegionChange(region)}
-        />
-        <View style={[styles.bubble, styles.latlng]}>
-          <Text style={styles.centeredText}>
-            {this.state.region.latitude.toPrecision(7)},
-            {this.state.region.longitude.toPrecision(7)}
-          </Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            onPress={() => this.jumpRandom()}
-            style={[styles.bubble, styles.button]}
-          >
-            <Text style={styles.buttonText}>Jump</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.animateRandom()}
-            style={[styles.bubble, styles.button]}
-          >
-            <Text style={styles.buttonText}>Animate (Region)</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.animateRandomCoordinate()}
-            style={[styles.bubble, styles.button]}
-          >
-            <Text style={styles.buttonText}>Animate (Coordinate)</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.animateToRandomBearing()}
-            style={[styles.bubble, styles.button]}
-          >
-            <Text style={styles.buttonText}>Animate (Bearing)</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => this.animateToRandomViewingAngle()}
-            style={[styles.bubble, styles.button]}
-          >
-            <Text style={styles.buttonText}>Animate (View Angle)</Text>
-          </TouchableOpacity>
-        </View>
+    </MapView>
+    <View style={[styles.bubble, styles.latlng]}>
+        <Text style={styles.centeredText}>
+          {region.latitude.toPrecision(7)},
+          {region.longitude.toPrecision(7)}
+        </Text>
       </View>
-    );
+      <Button title = 'Restricted Markers' onPress = {() => mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))}></Button>
+      <Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>
+    </View>
   }
+
+  return (
+  <View style={styles.container}>
+    {view}
+  </View>
+  );
 }
 
-Test2.propTypes = {
-  provider: ProviderPropType,
-};
+
+const pullMarkers = async (mapborder) => {
+  articles = []
+  const southWest = geohash.encode(mapborder.southWest.latitude, mapborder.southWest.longitude)
+  const northEast = geohash.encode(mapborder.northEast.latitude, mapborder.northEast.longitude)
+  const collectionName = "long-beach"
+  const db = Firebase.firestore();
+  const ref = db.collection(collectionName)
+  const snapshot = await ref.where("geohash", ">=", southWest).where("geohash", "<=", northEast).get();
+  if (snapshot.empty) {
+    //Alert.alert('No matching documents.');
+    //no articles in location, return empty array
+    return [];
+}
+else {
+    snapshot.forEach(doc => {
+        articles.push({"Headline":doc.data().name, "Description":doc.data().summary, "Url":doc.data().url, "Topic":doc.data().topic, 'Geohash':doc.data().geohash, 'Publish Date':doc.data().datePublished, 'Org':doc.data().organization});
+    })
+    //prints how many markers were pulled
+    console.log(articles.length);
+    return articles;
+}
+}
+
+const displayMarkers = (articles) =>  {
+  //business, crime, entertainment, health, politics, science & tech, sports, travel
+  //Is there a better way to do this?
+  var mapPins = {'business': require('../assets/images/template_s.png'),
+                'crime': require('../assets/images/template_s.png'),
+                'entertainment': require('../assets/images/template_s.png'),
+                'health': require('../assets/images/template_s.png'),
+                'politics': require('../assets/images/politics_s.png'),
+                'science & tech': require('../assets/images/template_s.png'),
+                'sports': require('../assets/images/sports_s.png'),
+                'travel': require('../assets/images/template_s.png')}
+ // var mapPins = {"Sports":  require('../assets/images/Sports.png'), "Politics": require('../assets/images/Politics.png')}
+
+  const markerList = articles.map((article) =>
+
+  <Marker
+    key = {article.Url}
+    coordinate = {{ latitude: geohash.decode(article.Geohash).latitude, longitude:  geohash.decode(article.Geohash).longitude }}
+    title = {article.Headline}
+    description = {article.Description}
+    image = {mapPins[article.Topic]}
+  >
+
+      <Callout
+        alphaHitTest
+        tooltip
+        onPress={e => {Linking.openURL(article.Url)}}
+      >
+
+        <CustomCallout>
+          <Text>{article.Headline}</Text>
+        </CustomCallout>
+
+      </Callout>
+  </Marker>);
+
+  return (
+    <View>
+      {markerList}
+    </View>
+  );
+
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -141,6 +172,14 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+  },
+  center: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notify: {
+    fontSize: 35
   },
   bubble: {
     backgroundColor: 'rgba(255,255,255,0.7)',
@@ -152,23 +191,7 @@ const styles = StyleSheet.create({
     width: 200,
     alignItems: 'stretch',
   },
-  button: {
-    width: 100,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 5,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginVertical: 20,
-    backgroundColor: 'transparent',
-  },
-  buttonText: {
-    textAlign: 'center',
-  },
   centeredText: { textAlign: 'center' },
 });
 
-
-export default Test2;
+export default Test;

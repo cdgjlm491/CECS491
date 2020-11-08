@@ -118,7 +118,7 @@ else {
 
 const displayMarkers = (articles) =>  {
   //temp. add more images here
-  var mapPins = {"Sports":  require('../assets/images/Sports.png'), "Politics": require('../assets/images/Politics.png')}
+  var mapPins = {"Sports":  require('../assets/images/sports.png'), "Politics": require('../assets/images/politics.png')}
 
   const markerList = articles.map((article) =>
 
