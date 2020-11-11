@@ -33,6 +33,7 @@ const [filterList, setFilterList] = useState(
     return (
       <View style={styles.contentContainer}>
         {checkButtons()}
+        <Button title = 'Update'></Button>
       </View>
     );
 
