@@ -4,7 +4,6 @@ import { Button } from 'react-native-elements';
 import { Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Firebase from '../components/Firebase'
-import Forgot from '../screens/ForgotPasswordScreen'
 
 var firestore = Firebase.firestore();
 

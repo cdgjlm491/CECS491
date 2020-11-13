@@ -1,171 +1,308 @@
-import  React, { useState }  from 'react';
-import { View, StyleSheet, Alert, Linking, Button } from 'react-native';
-import {Text} from 'react-native-elements';
-import Constants from 'expo-constants';
-import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
-import CustomCallout from '../components/CustomCallout.js';
+import React, { useState, useEffect, useRef } from 'react'
+import { View, StyleSheet, Text, Button, Alert } from 'react-native'
 import Firebase from '../components/Firebase'
-import GoogleMap from '../components/MapComponent'
+import * as Location from 'expo-location';
+import MapView, { Marker, PROVIDER_GOOGLE, Callout, MAP_TYPES } from 'react-native-maps';
+import CustomCallout from '../components/CustomCallout.js';
+import geohash from "ngeohash";
+import * as Linking from 'expo-linking';
+import { useIsFocused } from '@react-navigation/native';
+import 'firebase/firestore';
+//this is required for a hack that fixes duplicate keys in the markers
+import 'react-native-get-random-values'
+import { v4 as uuidv4 } from 'uuid';
 
+const MapScreen = (props) => {
 
-const MapScreen = (props) =>  {
-
-  const [markersLoaded, setMarkersLoaded] = useState(false);
-
-  const [region, setRegion] =  useState({
+  const [region, setRegion] = useState({
     latitude: 33.7701,
     longitude: -118.1937,
-    latitudeDelta: 0.015,
-    longitudeDelta: 0.0121
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1
   });
 
+  //notes for myself
+
+  //add a state that tracks if a marker is selected, if one is selected do no run the setmarkerlist on region change complete?
+  //if the region changes enough however, deselect the marker and update the marker list?
+  //the isGesture event may be helpful, but will only work on deployed apps
+  //setup geofirejs
+  //THERE IS NO NEED TO PULL MARKERS WHEN ZOOMING IN!
+
+
+  const mapRef = useRef(null)
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  const isFocused = useIsFocused();
+
+
+  const [topics, setTopics] = useState([
+    'business',
+    'entertainment',
+    'health',
+    'politics',
+    'crime',
+    'science & tech',
+    'sports',
+    'travel'
+  ])
+
   const [markerList, setMarkerList] = useState([{
-    "Headline": "filler",
-    "Description": "filler",
-    "Url": "filler",
-    "Coordinates": {
-      "Latitude": 0,
-      "Longitude": 0,
-    },
+    'Headline': 'filler',
+    'Description': 'filler',
+    'Url': 'filler',
+    'Topic': 'filler',
+    'Geohash': 'filler',
+    'Publish Date': 'filler',
+    'Org': 'filler'
+    //'Coordinates': {
+    //'Latitude': 0.1,
+    //'Longitude': 0.1,
+    //},
   }]);
 
-return (
-  <View>
-      <MapView
-      style={styles.map}
-      provider = {PROVIDER_GOOGLE}
-      region = {region}
-      onRegionChangeComplete={region => setRegion(region)}
-      >
-
-      {displayMarkers(markerList)}
-
-    </MapView>
-    <Button title = 'Update Markers from Database' onPress = {() => pullMarkers().then(a => setMarkerList(a))}></Button>
-  </View>
-  )
-}
+  //updates markers when screen comes into focus
+  useEffect(() => {
+    if (isFocused) {
+      getTopics().then(a => setTopics(a))
+      mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))
+    }
+  }, [isFocused]);
 
 
-const pullMarkers = async () => {
-  const collectionName = "Testing Data"
-  const db = Firebase.firestore();
-  const ref = db.collection(collectionName);
-  const snapshot = await ref.get();
-  articles = []
-  if (snapshot.empty) {
-      Alert.alert('No matching documents.');
-      return;
-  }
-  else {
-      snapshot.forEach(doc => {
-          articles.push({"Headline":doc.data().Headline, "Description":doc.data().Description, "Url":doc.data().Url, "Coordinates": {"Latitude":doc.data().Coordinates.latitude,"Longitude":doc.data().Coordinates.longitude,}});
-      })
-      console.log(articles);
-      return articles;
-  }
-}
-
-const displayMarkers = (articles) =>  {
-
-const markerList = articles.map((article) =>
-<Marker
-  key = {article.Url}
-  coordinate = {{ latitude: article.Coordinates.Latitude, longitude: article.Coordinates.Longitude }}
-  title = {article.Headline}
-  description = {article.Description}
-  onPress={ e => {
-    Alert.alert(' ',"You clicked the marker, we can use this to bring up a new screen.")
-  }}>
-
-    <Callout
-      alphaHitTest
-      tooltip
-      onPress={e => {
-        if (
-          e.nativeEvent.action === 'marker-inside-overlay-press' ||
-          e.nativeEvent.action === 'callout-inside-press'
-        ) {
-          Linking.openURL(article.url)
-        }
-
-        Alert.alert(article.title, "This will probably need to be another screen, the data of the marker is accessable as follows\n" + article.title + "\n" + article.desc + "\n"+ article.url,
-        [
-          {
-            text: 'Open Article',
-            onPress: () => Linking.openURL(article.url)
-          }] );
-      }}
-    >
-
-      <CustomCallout>
-        <Text>{'Clicking this should bring you to a new screen with more info about the article. The following is a test to see how much text fits in here.' +
-        'Aenean egestas arcu molestie erat laoreet, et faucibus tortor blandit. Aenean egestas arcu molestie erat laoreet, et faucibus tortor blandit.'}</Text>
-      </CustomCallout>
-
-    </Callout>
-</Marker>);
-
-return (
-  <View>
-    {markerList}
-  </View>
-);
-
-}
-
-
-
-/*
-const getLocation = () => {
-  if (Platform.OS === 'android' && !Constants.isDevice) {
-    setErrorMsg(
-      'Oops, this will not work on Sketch in an Android emulator. Try it on your device!'
-    );
-  } else {
+  useEffect(() => {
     (async () => {
-      let { status } = await Location.requestPermissionsAsync();
-      if (status !== 'granted') {
+
+      //check location service status
+      try {
+        await Location.requestPermissionsAsync();
+      } catch {
+        console.log('requestPermissionsAsync error')
         setErrorMsg('Permission to access location was denied');
       }
+      try {
+        await Location.hasServicesEnabledAsync()
+      } catch {
+        console.log('hasServicesEnabledAsync error')
+        setErrorMsg('Location service is disabled or inaccesable.');
+      }
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
+      //save last known location and use it instead of the users current location?
+      try {
+        let location = await Location.getCurrentPositionAsync();
+        console.log(location)
+        setRegion({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1
+        })
+      } catch {
+        console.log('getCurrentPositionAsync error')
+        setErrorMsg('Cant get current position')
+        //default region
+        setRegion({
+          latitude: 33.7701,
+          longitude: -118.1937,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1
+        })
+      }
+
+
     })();
+  }, []);
+
+
+  //attempting to get location view
+  let view =
+    <View style={styles.center}>
+      <Text>Getting Location..</Text>
+    </View>;
+
+  //location was found view
+  if (region) {
+    view =
+      <View style={styles.container}>
+        <MapView style={styles.map}
+          provider={PROVIDER_GOOGLE}
+          ref={mapRef}
+          initialRegion={region}
+          //onPanDrag={() => console.log('dragged map')}
+          onMarkerPress={() => console.log('marker selected')}
+          //might fix a bug but might be android only
+          moveOnMarkerPress={false}
+          //causes hangs
+          //onRegionChange={region => setRegion(region)}
+
+          //PROBLEM: when you select a marker and move the map the markers are refreshed causing the marker to no longer be selected
+          //isGesture can prevent this if it works when deployed to the appstore, currently it is returning undefined.
+          //get boundries, then pull markers, then set markers
+          onRegionChangeComplete={region, isGesture => {
+            console.log('region change complete');
+            setRegion(region)
+            console.log('isGesture: ' + isGesture)
+            mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))
+          }}
+        >
+
+          {displayMarkers(markerList)}
+
+        </MapView>
+        {/*lat long info bubble*/}
+        <View style={[styles.bubble, styles.latlng]}>
+          <Text style={styles.centeredText}>
+            {region.latitude.toPrecision(7)},
+          {region.longitude.toPrecision(7)}
+          </Text>
+        </View>
+
+        {/*<Button title = 'Restricted Markers' onPress = {() => mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))}></Button>
+      <Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>*/}
+      </View>
   }
-};
-*/
+
+  return (
+    <View style={styles.container}>
+      {view}
+      <View style={styles.mapDrawerOverlay} />
+    </View>
+  );
+}
+
+const getTopics = async () => {
+  const email = Firebase.auth().currentUser.email;
+  const collectionName = "NewUsers"
+  const db = Firebase.firestore();
+  const ref = db.collection(collectionName).doc(email)
+  //add try catch
+  const doc = await ref.get();
+
+  if (!doc.exists) {
+    console.log('No such document!');
+  } else {
+    //console.log('Document data:', doc.data());
+    return doc.data().Interests
+  }
+
+}
+
+const pullMarkers = async (mapborder) => {
+  //need to change database layout and then update this
+  //add try catch
+  topics = await getTopics()
+  articles = []
+  console.log('starting to pull markers')
+  const southWest = geohash.encode(mapborder.southWest.latitude, mapborder.southWest.longitude)
+  const northEast = geohash.encode(mapborder.northEast.latitude, mapborder.northEast.longitude)
+  const collectionName = "long-beach"
+  const db = Firebase.firestore();
+  const ref = db.collection(collectionName)
+
+  //THIS IS NOT WORKING, OOPS
+  //make this a compound query in the future to select topics, right now it pulls everything and then filters by topic later
+  ref.where("geohash", ">=", southWest).where("geohash", "<=", northEast)
+  //add try catch
+  const snapshot = await ref.get();
+
+  if (snapshot.empty) {
+    //Alert.alert('No matching documents.');
+    //no articles in location, return empty array
+    return [];
+  }
+  else {
+    snapshot.forEach(doc => {
+      if (topics.includes(doc.data().topic)) {
+        articles.push({ "Headline": doc.data().name, "Description": doc.data().summary, "Url": doc.data().url, "Topic": doc.data().topic, 'Geohash': doc.data().geohash, 'Publish Date': doc.data().datePublished, 'Org': doc.data().organization });
+        //console.log(doc.data().topic)
+      }
+    })
+    //prints how many markers were pulled
+    console.log('pulled markers: ' + articles.length);
+    return articles;
+  }
+}
+
+const displayMarkers = (articles) => {
+  //business, crime, entertainment, health, politics, science & tech, sports, travel
+  //Is there a better way to do this?
+  var mapPins = {
+    'business': require('../assets/images/business_s.png'),
+    'crime': require('../assets/images/crime_s.png'),
+    'entertainment': require('../assets/images/entertainment_s.png'),
+    'health': require('../assets/images/health_s.png'),
+    'politics': require('../assets/images/politics_s.png'),
+    'science & tech': require('../assets/images/science_s.png'),
+    'sports': require('../assets/images/sports_s.png'),
+    'travel': require('../assets/images/travel_s.png')
+  }
+
+  markerList = []
+  markerList = articles.map((article) =>
+
+    <Marker
+      key={uuidv4()}
+      coordinate={{ latitude: geohash.decode(article.Geohash).latitude, longitude: geohash.decode(article.Geohash).longitude }}
+      title={article.Headline}
+      description={article.Description}
+      image={mapPins[article.Topic]}
+    >
+      <Callout
+        alphaHitTest
+        tooltip
+        onPress={() => Linking.openURL(article.Url)}
+      >
+        <CustomCallout>
+          <Text>{article.Headline}</Text>
+        </CustomCallout>
+      </Callout>
+    </Marker>);
+
+  return (
+    <View>
+      {markerList}
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+
+  },
+  center: {
+    ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
-    paddingTop: Constants.statusBarHeight,
-    backgroundColor: '#ecf0f1',
-    padding: 8,
+    alignItems: 'center',
   },
-  contentContainer: {
-    paddingTop: 0,
+  notify: {
+    fontSize: 35
   },
-  paragraph: {
-    margin: 24,
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  bubble: {
+    position: 'absolute',
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 20,
   },
   mapDrawerOverlay: {
     position: 'absolute',
     left: 0,
     top: 0,
     opacity: 0.0,
-    //height: "100%",
-    width: 25,
+    height: "100%",
+    width: 10,
   },
-  map: {
-    height: "90%",
-    width: "100%",
-    //...StyleSheet.absoluteFillObject,
-  }
+  latlng: {
+    width: 200,
+    alignItems: 'stretch',
+  },
+  centeredText: { textAlign: 'center' },
 });
 
 export default MapScreen;

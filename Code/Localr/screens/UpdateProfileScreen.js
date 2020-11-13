@@ -1,4 +1,4 @@
-import React, { useState, useContext, Component } from 'react';
+import React, { useState, useContext, Component, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { AuthContext } from '../navigation/AuthNavigator';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -10,9 +10,10 @@ import { useRoute } from '@react-navigation/core';
 import SelectMultiple from 'react-native-select-multiple';
 import MultiSelect from 'react-native-multiple-select';
 
- 
+
 // Import Interfaces`
 import { ICountry, IState, ICity } from 'country-state-city'
+
 var firestore = Firebase.firestore();
 
 const update = async(name, age, interests) => {
@@ -33,7 +34,8 @@ const update = async(name, age, interests) => {
         Interests: interestArray,
         Name: name
     }
-    
+
+    //add try catch
     await firestore.collection('NewUsers').doc(email).set(userData);
     console.log("Done updating");
 }
@@ -57,26 +59,36 @@ const MultiSelectInterests = (props) => {
 }
 */
 const UpdateProfile = () => {
+
     const [name, setName] = React.useState("");
     const [age, setAge] = React.useState("");
     const [interests, setInterests] = React.useState([]);
 
-    
+
     const items = [{
-        id: 'Sports',
-        name: 'Sports',
+        id: 'sports',
+        name: 'sports',
       }, {
-        id: 'News',
-        name: 'News',
+        id: 'entertainment',
+        name: 'entertainment',
       }, {
-        id: 'Politics',
-        name: 'Politics',
+        id: 'politics',
+        name: 'politics',
       }, {
-        id: 'Celebrities',
-        name: 'Celebrities',
+        id: 'health',
+        name: 'health',
       }, {
-        id: 'Tech',
-        name: 'Tech',
+        id: 'travel',
+        name: 'travel',
+    }, {
+        id: 'business',
+        name: 'business',
+      }, {
+        id: 'crime',
+        name: 'crime',
+      }, {
+        id: 'science & tech',
+        name: 'science & tech',
       }];
     const onSelectionsChange = ((selectedItems) => {
         setInterests(selectedItems);
@@ -85,7 +97,7 @@ const UpdateProfile = () => {
     return (
         <View style={styles.container}>
         <View style={styles.content}>
-        <Input 
+        <Input
             placeholder='Name'
             onChangeText = {text => setName(text)}
             value = {name}
@@ -104,8 +116,7 @@ const UpdateProfile = () => {
           selectedItems={interests}
           selectText="Pick Interests"
           searchInputPlaceholderText="Search Items..."
-          onChangeInput={ (text)=> console.log(text)}
-          altFontFamily="Cochin"
+          //onChangeInput={ (text)=> console.log(text)}
           tagRemoveIconColor="#CCC"
           tagBorderColor="#CCC"
           tagTextColor="#CCC"
@@ -117,20 +128,37 @@ const UpdateProfile = () => {
           submitButtonColor="#CCC"
           submitButtonText="Submit"
         />
-        
+
         <Button style={styles.button}
             title = "Save"
             onPress = {() => update(name, age, interests)}
-            
+
            />
-        
+
         </View>
-        
-        
-        
+
+
+
       </View>
     )
 }
+
+const getUser = async () => {
+    const email =  Firebase.auth().currentUser.email;
+    const collectionName = "NewUsers"
+    const db = Firebase.firestore();
+    const ref = db.collection(collectionName).doc(email)
+    //add try catch
+    const doc = await ref.get();
+
+    if (!doc.exists) {
+      console.log('No such document!');
+    } else {
+      console.log('Document data:', doc.data());
+      return doc.data()
+    }
+
+  }
 
 const styles = StyleSheet.create({
     container: {
@@ -166,7 +194,7 @@ const styles = StyleSheet.create({
             onChangeText = {text => setAge(text)}
             value = {age}
         />
- * <SelectMultiple 
+ * <SelectMultiple
                 items = {fruits}
                 selectedItems = {interests}
                 onSelectionsChange = {onSelectionsChange}

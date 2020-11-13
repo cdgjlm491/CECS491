@@ -1,66 +1,269 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Text, TouchableOpacity, Button, Alert } from 'react-native'
+import { View, StyleSheet, Alert, Linking, Button, Text } from 'react-native';
+import { CheckBox } from 'react-native-elements'
 import Firebase from '../components/Firebase'
 
-const Test = () => {
-    /*
-    const [test, setTest] = useState({
-        "Coordinates": {
-          "latitude": 0,
-          "longitude": 0,
-        },
-        "Description": "test",
-        "Headline": "test",
-        "Url": "test",
-      });
-      */
 
-     const [markerList, setMarkerList] = useState([{
-        "Headline": "test",
-        "Description": "test",
-        "Url": "test",
-        "Coordinates": {
-          "Latitude": 0,
-          "Longitude": 0,
-        },
-      }]);
+const TestScreen = (props) => {
+
+  const topicArray = {
+  'business': false,
+  'entertainment': false,
+  'health': false,
+  'politics': false,
+  'crime': false,
+  'science & tech': false,
+  'sports': false,
+  'travel': false}
+
+  const [filterList, setFilterList] = useState(
+    {  'business': false,
+    'entertainment': false,
+    'health': false,
+    'politics': false,
+    'crime': false,
+    'science & tech': false,
+    'sports': false,
+    'travel': false});
+
+  const [business, setBusiness] = useState(false);
+  const [entertainment, setEntertainment] = useState(false);
+  const [health, setHealth] = useState(false);
+  const [politics, setPolitics] = useState(false);
+  const [crime, setCrime] = useState(false);
+  const [science, setScience] = useState(false);
+  const [sports, setSports] = useState(false);
+  const [travel, setTravel] = useState(false);
+
+  /*
+  useEffect(() => {
+    console.log('use effect')
+    // Runs after the first render() lifecycle
+
+    getTopics().then(x => {
+      console.log(x)
+  x.forEach(element => {
+      console.log(element)
+      topicArray[element] = true
+    })
+    console.log(topicArray)
+    setFilterList(topicArray)
+    })
+  }, []);
+  */
+
+ const update = async () => {
+  topiclist = []
+  const email =  Firebase.auth().currentUser.email;
+
+  if(politics){
+      topiclist.push('politics')
+  }
+  if(business){
+    topiclist.push('business')
+  }
+  if(crime){
+    topiclist.push('crime')
+  }
+  if(entertainment){
+    topiclist.push('entertainment')
+  }
+  if(health){
+    topiclist.push('health')
+  }
+  if(sports){
+    topiclist.push('sports')
+  }
+  if(travel){
+    topiclist.push('travel')
+  }
+  if(science){
+    topiclist.push('science & tech')
+  }
+  console.log(topiclist)
+
+
+  const ref = await Firebase.firestore().collection('NewUsers').doc(email)
+  const res = await ref.update({Interests : topiclist})
+}
+
+ useEffect(() => {
+  console.log('use effect')
+  // Runs after the first render() lifecycle
+
+  getTopics().then(x => {
+    console.log(x)
+x.forEach(element => {
+  switch(element) {
+    case 'business':
+      setBusiness(true)
+      break;
+    case 'entertainment':
+      setEntertainment(true)
+      break;
+    case 'health':
+      setHealth(true)
+      break;
+    case 'politics':
+      setPolitics(true)
+      break;
+    case 'crime':
+      setCrime(true)
+      break;
+    case 'science & tech':
+      setScience(true)
+      break;
+    case 'sports':
+      setSports(true)
+      break;
+    case 'travel':
+      setTravel(true)
+      break;
+  default:
+      console.log('error')
+  }
+  })
+  })
+}, []);
 
   return (
-    <View style={styles.container}>
-        <Text>{markerList[0].Description}</Text>
-      <Button title='test' onPress={() => q().then(a => setMarkerList(a))}>
-      </Button>
-      <Button title='state' onPress={() => console.log(markerList)}>
-      </Button>
+    <View style={styles.contentContainer}>
+          <CheckBox
+            title = 'Politics'
+            checked={politics}
+            onPress={() => setPolitics(!politics)}
+            style={styles.checkbox}
+          />
+          <CheckBox
+            title = 'Business'
+            checked={business}
+            onPress={() => setBusiness(!business)}
+            style={styles.checkbox}
+          />
+          <CheckBox
+            title = 'Crime'
+            checked={crime}
+            onPress={() => setCrime(!crime)}
+            style={styles.checkbox}
+          />
+          <CheckBox
+            title = 'Health'
+            checked={health}
+            onPress={() => setHealth(!health)}
+            style={styles.checkbox}
+          />
+          <CheckBox
+            title = 'Entertainment'
+            checked={entertainment}
+            onPress={() => setEntertainment(!entertainment)}
+            style={styles.checkbox}
+          />
+          <CheckBox
+            title = 'Science and tech'
+            checked={science}
+            onPress={() => setScience(!science)}
+            style={styles.checkbox}
+          />
+          <CheckBox
+            title = 'Travel'
+            checked={travel}
+            onPress={() => setTravel(!travel)}
+            style={styles.checkbox}
+          />
+          <CheckBox
+            title = 'Sports'
+            checked={sports}
+            onPress={() => setSports(!sports)}
+            style={styles.checkbox}
+          />
+        <Button title='Update' onPress = {() => update()}></Button>
+      </View>
+  );
+
+/*
+    const checkButtons = () => {
+        var buttons = [];
+        for(var name in filterList) {
+              buttons.push(
+              <CheckBox
+              key={Math.random()}
+              title= {name}
+              checked={filterList[name]}
+              onPress={() =>  {setFilterList(changeCheck(name))}}
+              />
+            )
+        }
+        return buttons;
+    }
+
+
+    const changeCheck = (name) => {
+      filterList[name] = !filterList[name]
+      console.log(filterList)
+      return filterList
+    }
+
+    return (
+  <View style={styles.contentContainer}>
+    {checkButtons()}
+      <Button title='Update'></Button>
     </View>
-  )
+);
+*/
+
 }
 
-const q = async () => {
-    const db = Firebase.firestore();
-    const ref = db.collection('Testing Data');
-    const snapshot = await ref.get();
-    articles = []
-    if (snapshot.empty) {
-        Alert.alert('No matching documents.');
-        return;
-    }
-    else {
-        snapshot.forEach(doc => {
-            articles.push({"Headline":doc.data().Headline, "Description":doc.data().Description, "Url":doc.data().Url, "Coordinates": {"Latitude":doc.data().Coordinates.latitude,"Longitude":doc.data().Coordinates.longitude,}});
-        })
-        //console.log(articles);
-        return articles;
-    }
+
+
+
+const getTopics = async () => {
+  const email =  Firebase.auth().currentUser.email;
+  const collectionName = "NewUsers"
+  const db = Firebase.firestore();
+  const ref = db.collection(collectionName).doc(email)
+  const doc = await ref.get();
+
+  if (!doc.exists) {
+    console.log('No such document!');
+  } else {
+    console.log('Document data:', doc.data());
+    return doc.data().Interests
+  }
+
 }
+export default TestScreen
 
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
+        flex: 1
     },
-  });
-
-export default Test;
+    contentContainer: {
+        paddingTop: 15
+    },
+    button: {
+        marginTop: 10
+    },
+    input: {
+        marginTop: 10
+    },
+    image: {
+        height: 200,
+        width: 200,
+        resizeMode: 'contain',
+    },
+    logoContainer: {
+        alignItems: 'center',
+    },
+    icon: {
+        marginRight: 10
+    },
+    mapDrawerOverlay: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        opacity: 0.0,
+        height: "100%",
+        width: 25,
+      },
+});
