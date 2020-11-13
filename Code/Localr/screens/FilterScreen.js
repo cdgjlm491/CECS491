@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Button, Text } from 'react-native';
+import { View, StyleSheet, Button } from 'react-native';
 import { CheckBox } from 'react-native-elements'
 import Firebase from '../components/Firebase'
 

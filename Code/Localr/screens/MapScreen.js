@@ -21,6 +21,15 @@ const MapScreen = (props) => {
     longitudeDelta: 0.1
   });
 
+  //notes for myself
+
+  //add a state that tracks if a marker is selected, if one is selected do no run the setmarkerlist on region change complete?
+  //if the region changes enough however, deselect the marker and update the marker list?
+  //the isGesture event may be helpful, but will only work on deployed apps
+  //setup geofirejs
+  //THERE IS NO NEED TO PULL MARKERS WHEN ZOOMING IN!
+
+
   const mapRef = useRef(null)
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -52,9 +61,7 @@ const MapScreen = (props) => {
     //},
   }]);
 
-
-  //trying something, I don't think this works
-
+  //updates markers when screen comes into focus
   useEffect(() => {
     if (isFocused) {
       getTopics().then(a => setTopics(a))
@@ -93,6 +100,7 @@ const MapScreen = (props) => {
       } catch {
         console.log('getCurrentPositionAsync error')
         setErrorMsg('Cant get current position')
+        //default region
         setRegion({
           latitude: 33.7701,
           longitude: -118.1937,
@@ -105,23 +113,14 @@ const MapScreen = (props) => {
     })();
   }, []);
 
+
   //attempting to get location view
   let view =
     <View style={styles.center}>
       <Text>Getting Location..</Text>
     </View>;
 
-  //error getting location view
-  /*
-  if (errorMsg) {
-    view =
-      <View style={styles.center}>
-        <Text>{errorMsg}</Text>
-      </View>;
-  }
-  */
   //location was found view
-  //else
   if (region) {
     view =
       <View style={styles.container}>
@@ -129,10 +128,22 @@ const MapScreen = (props) => {
           provider={PROVIDER_GOOGLE}
           ref={mapRef}
           initialRegion={region}
-          //mapType={MAP_TYPES.HYBRID}
+          //onPanDrag={() => console.log('dragged map')}
+          onMarkerPress={() => console.log('marker selected')}
+          //might fix a bug but might be android only
+          moveOnMarkerPress={false}
+          //causes hangs
           //onRegionChange={region => setRegion(region)}
+
+          //PROBLEM: when you select a marker and move the map the markers are refreshed causing the marker to no longer be selected
+          //isGesture can prevent this if it works when deployed to the appstore, currently it is returning undefined.
           //get boundries, then pull markers, then set markers
-          onRegionChangeComplete={() => { region => setRegion(region); mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers))) }}
+          onRegionChangeComplete={region, isGesture => {
+            console.log('region change complete');
+            setRegion(region)
+            console.log('isGesture: ' + isGesture)
+            mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))
+          }}
         >
 
           {displayMarkers(markerList)}
@@ -170,7 +181,7 @@ const getTopics = async () => {
   if (!doc.exists) {
     console.log('No such document!');
   } else {
-    console.log('Document data:', doc.data());
+    //console.log('Document data:', doc.data());
     return doc.data().Interests
   }
 
@@ -180,18 +191,20 @@ const pullMarkers = async (mapborder) => {
   //need to change database layout and then update this
   //add try catch
   topics = await getTopics()
-  console.log('starting to pull markers')
   articles = []
-  //console.log(topics)
+  console.log('starting to pull markers')
   const southWest = geohash.encode(mapborder.southWest.latitude, mapborder.southWest.longitude)
   const northEast = geohash.encode(mapborder.northEast.latitude, mapborder.northEast.longitude)
   const collectionName = "long-beach"
   const db = Firebase.firestore();
   const ref = db.collection(collectionName)
+
+  //THIS IS NOT WORKING, OOPS
   //make this a compound query in the future to select topics, right now it pulls everything and then filters by topic later
   ref.where("geohash", ">=", southWest).where("geohash", "<=", northEast)
   //add try catch
   const snapshot = await ref.get();
+
   if (snapshot.empty) {
     //Alert.alert('No matching documents.');
     //no articles in location, return empty array
@@ -234,17 +247,14 @@ const displayMarkers = (articles) => {
       description={article.Description}
       image={mapPins[article.Topic]}
     >
-
       <Callout
         alphaHitTest
         tooltip
-        onPress={e => { Linking.openURL(article.Url) }}
+        onPress={() => Linking.openURL(article.Url)}
       >
-
         <CustomCallout>
           <Text>{article.Headline}</Text>
         </CustomCallout>
-
       </Callout>
     </Marker>);
 
@@ -253,7 +263,6 @@ const displayMarkers = (articles) => {
       {markerList}
     </View>
   );
-
 }
 
 const styles = StyleSheet.create({
