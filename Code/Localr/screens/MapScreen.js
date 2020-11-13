@@ -7,14 +7,20 @@ import CustomCallout from '../components/CustomCallout.js';
 import geohash from "ngeohash";
 import * as Linking from 'expo-linking';
 import { useIsFocused } from '@react-navigation/native';
-
+import 'firebase/firestore';
 //this is required for a hack that fixes duplicate keys in the markers
-import { v4 as uuidv4 } from 'uuid';
 import 'react-native-get-random-values'
+import { v4 as uuidv4 } from 'uuid';
 
 const MapScreen = (props) => {
 
-  const [region, setRegion] = useState(null);
+  const [region, setRegion] = useState({
+    latitude: 33.7701,
+    longitude: -118.1937,
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1
+  });
+
   const mapRef = useRef(null)
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -46,34 +52,56 @@ const MapScreen = (props) => {
     //},
   }]);
 
+
   //trying something, I don't think this works
+
   useEffect(() => {
     if (isFocused) {
       getTopics().then(a => setTopics(a))
+      mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))
     }
   }, [isFocused]);
+
 
   useEffect(() => {
     (async () => {
 
       //check location service status
-      let { status } = await Location.requestPermissionsAsync();
-      if (status !== 'granted') {
+      try {
+        await Location.requestPermissionsAsync();
+      } catch {
+        console.log('requestPermissionsAsync error')
         setErrorMsg('Permission to access location was denied');
       }
-      let locationServiceStatus = await Location.hasServicesEnabledAsync()
-      if (!locationServiceStatus) {
+      try {
+        await Location.hasServicesEnabledAsync()
+      } catch {
+        console.log('hasServicesEnabledAsync error')
         setErrorMsg('Location service is disabled or inaccesable.');
       }
 
       //save last known location and use it instead of the users current location?
-      let location = await Location.getCurrentPositionAsync();
-      setRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.1,
-        longitudeDelta: 0.1
-      })
+      try {
+        let location = await Location.getCurrentPositionAsync();
+        console.log(location)
+        setRegion({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1
+        })
+      } catch {
+        console.log('getCurrentPositionAsync error')
+        setErrorMsg('Cant get current position')
+        setRegion({
+          latitude: 33.7701,
+          longitude: -118.1937,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1
+        })
+      }
+
+
     })();
   }, []);
 
@@ -84,15 +112,17 @@ const MapScreen = (props) => {
     </View>;
 
   //error getting location view
+  /*
   if (errorMsg) {
     view =
       <View style={styles.center}>
         <Text>{errorMsg}</Text>
       </View>;
   }
-
+  */
   //location was found view
-  else if (region) {
+  //else
+  if (region) {
     view =
       <View style={styles.container}>
         <MapView style={styles.map}
@@ -100,9 +130,9 @@ const MapScreen = (props) => {
           ref={mapRef}
           initialRegion={region}
           //mapType={MAP_TYPES.HYBRID}
-          onRegionChange={region => setRegion(region)}
+          //onRegionChange={region => setRegion(region)}
           //get boundries, then pull markers, then set markers
-          onRegionChangeComplete={() => { setMarkerList([]); mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder, topics).then(markers => setMarkerList(markers))) }}
+          onRegionChangeComplete={() => { region => setRegion(region); mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers))) }}
         >
 
           {displayMarkers(markerList)}
@@ -146,8 +176,11 @@ const getTopics = async () => {
 
 }
 
-const pullMarkers = async (mapborder, topics) => {
+const pullMarkers = async (mapborder) => {
   //need to change database layout and then update this
+  //add try catch
+  topics = await getTopics()
+  console.log('starting to pull markers')
   articles = []
   //console.log(topics)
   const southWest = geohash.encode(mapborder.southWest.latitude, mapborder.southWest.longitude)
@@ -172,7 +205,7 @@ const pullMarkers = async (mapborder, topics) => {
       }
     })
     //prints how many markers were pulled
-    console.log(articles.length);
+    console.log('pulled markers: ' + articles.length);
     return articles;
   }
 }
@@ -191,7 +224,8 @@ const displayMarkers = (articles) => {
     'travel': require('../assets/images/travel_s.png')
   }
 
-  const markerList = articles.map((article) =>
+  markerList = []
+  markerList = articles.map((article) =>
 
     <Marker
       key={uuidv4()}
@@ -229,9 +263,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   map: {
-    //...StyleSheet.absoluteFillObject,
-    width: '100%',
-    height: '100%'
+    ...StyleSheet.absoluteFillObject,
+
   },
   center: {
     ...StyleSheet.absoluteFillObject,
@@ -254,7 +287,7 @@ const styles = StyleSheet.create({
     top: 0,
     opacity: 0.0,
     height: "100%",
-    width: 25,
+    width: 10,
   },
   latlng: {
     width: 200,

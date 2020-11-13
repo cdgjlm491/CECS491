@@ -16,6 +16,62 @@ const FilterScreen = () => {
   const [sports, setSports] = useState(false);
   const [travel, setTravel] = useState(false);
 
+
+const getTopics = async () => {
+  const email = Firebase.auth().currentUser.email;
+  const collectionName = "NewUsers"
+  const db = Firebase.firestore();
+  const ref = db.collection(collectionName).doc(email)
+
+  //add try catch
+  const doc = await ref.get();
+
+  if (!doc.exists) {
+    console.log('No such document!');
+  } else {
+    console.log('Document data:', doc.data());
+    return doc.data().Interests
+  }
+
+}
+
+
+const update = async () => {
+  topiclist = []
+  const email = Firebase.auth().currentUser.email;
+
+  if (politics) {
+    topiclist.push('politics')
+  }
+  if (business) {
+    topiclist.push('business')
+  }
+  if (crime) {
+    topiclist.push('crime')
+  }
+  if (entertainment) {
+    topiclist.push('entertainment')
+  }
+  if (health) {
+    topiclist.push('health')
+  }
+  if (sports) {
+    topiclist.push('sports')
+  }
+  if (travel) {
+    topiclist.push('travel')
+  }
+  if (science) {
+    topiclist.push('science & tech')
+  }
+  console.log(topiclist)
+
+
+  //add try catch
+  const ref = await Firebase.firestore().collection('NewUsers').doc(email)
+  const res = await ref.update({ Interests: topiclist })
+}
+
   useEffect(() => {
     // Runs after the first render() lifecycle
     getTopics().then(topiclist => {
@@ -52,6 +108,7 @@ const FilterScreen = () => {
       })
     })
   }, []);
+
 
   return (
     <View style={styles.contentContainer}>
@@ -110,60 +167,6 @@ const FilterScreen = () => {
 }
 export default FilterScreen
 
-const getTopics = async () => {
-  const email = Firebase.auth().currentUser.email;
-  const collectionName = "NewUsers"
-  const db = Firebase.firestore();
-  const ref = db.collection(collectionName).doc(email)
-
-  //add try catch
-  const doc = await ref.get();
-
-  if (!doc.exists) {
-    console.log('No such document!');
-  } else {
-    console.log('Document data:', doc.data());
-    return doc.data().Interests
-  }
-
-}
-
-
-const update = async () => {
-  topiclist = []
-  const email = Firebase.auth().currentUser.email;
-
-  if (politics) {
-    topiclist.push('politics')
-  }
-  if (business) {
-    topiclist.push('business')
-  }
-  if (crime) {
-    topiclist.push('crime')
-  }
-  if (entertainment) {
-    topiclist.push('entertainment')
-  }
-  if (health) {
-    topiclist.push('health')
-  }
-  if (sports) {
-    topiclist.push('sports')
-  }
-  if (travel) {
-    topiclist.push('travel')
-  }
-  if (science) {
-    topiclist.push('science & tech')
-  }
-  console.log(topiclist)
-
-
-  //add try catch
-  const ref = await Firebase.firestore().collection('NewUsers').doc(email)
-  const res = await ref.update({ Interests: topiclist })
-}
 
 
 
