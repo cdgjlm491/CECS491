@@ -8,6 +8,9 @@ import geohash from "ngeohash";
 import * as Linking from 'expo-linking';
 import { useIsFocused } from '@react-navigation/native';
 
+//this is required for a hack that fixes duplicate keys in the markers
+import { v4 as uuidv4 } from 'uuid';
+import 'react-native-get-random-values'
 
 const MapScreen = (props) => {
 
@@ -99,7 +102,7 @@ const MapScreen = (props) => {
           //mapType={MAP_TYPES.HYBRID}
           onRegionChange={region => setRegion(region)}
           //get boundries, then pull markers, then set markers
-          onRegionChangeComplete={() => { mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder, topics).then(markers => setMarkerList(markers))) }}
+          onRegionChangeComplete={() => { setMarkerList([]); mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder, topics).then(markers => setMarkerList(markers))) }}
         >
 
           {displayMarkers(markerList)}
@@ -191,7 +194,7 @@ const displayMarkers = (articles) => {
   const markerList = articles.map((article) =>
 
     <Marker
-      key={article.Url}
+      key={uuidv4()}
       coordinate={{ latitude: geohash.decode(article.Geohash).latitude, longitude: geohash.decode(article.Geohash).longitude }}
       title={article.Headline}
       description={article.Description}
