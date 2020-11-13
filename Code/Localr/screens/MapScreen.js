@@ -4,15 +4,14 @@ import Firebase from '../components/Firebase'
 import * as Location from 'expo-location';
 import MapView, { Marker, PROVIDER_GOOGLE, Callout, MAP_TYPES } from 'react-native-maps';
 import CustomCallout from '../components/CustomCallout.js';
-import 'firebase/firestore';
 import geohash from "ngeohash";
 import * as Linking from 'expo-linking';
 import { useIsFocused } from '@react-navigation/native';
 
 
-const MapScreen = (props) =>  {
+const MapScreen = (props) => {
 
-  const [region, setRegion] =  useState(null);
+  const [region, setRegion] = useState(null);
   const mapRef = useRef(null)
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -20,15 +19,15 @@ const MapScreen = (props) =>  {
 
 
   const [topics, setTopics] = useState([
-  'business',
-  'entertainment',
-  'health',
-  'politics',
-  'crime',
-  'science & tech',
-  'sports',
-  'travel'
-])
+    'business',
+    'entertainment',
+    'health',
+    'politics',
+    'crime',
+    'science & tech',
+    'sports',
+    'travel'
+  ])
 
   const [markerList, setMarkerList] = useState([{
     'Headline': 'filler',
@@ -36,29 +35,35 @@ const MapScreen = (props) =>  {
     'Url': 'filler',
     'Topic': 'filler',
     'Geohash': 'filler',
-    'Publish Date':  'filler',
+    'Publish Date': 'filler',
     'Org': 'filler'
     //'Coordinates': {
-      //'Latitude': 0.1,
-      //'Longitude': 0.1,
+    //'Latitude': 0.1,
+    //'Longitude': 0.1,
     //},
   }]);
 
-  useEffect(() => { if(isFocused){
-     getTopics().then(a => setTopics(a))
-    }}, [isFocused]);
+  //trying something, I don't think this works
+  useEffect(() => {
+    if (isFocused) {
+      getTopics().then(a => setTopics(a))
+    }
+  }, [isFocused]);
 
   useEffect(() => {
     (async () => {
-      console.log('use effect')
+
+      //check location service status
       let { status } = await Location.requestPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
       }
-      let locationServiceStatus  = await Location.hasServicesEnabledAsync()
+      let locationServiceStatus = await Location.hasServicesEnabledAsync()
       if (!locationServiceStatus) {
         setErrorMsg('Location service is disabled or inaccesable.');
       }
+
+      //save last known location and use it instead of the users current location?
       let location = await Location.getCurrentPositionAsync();
       setRegion({
         latitude: location.coords.latitude,
@@ -69,58 +74,64 @@ const MapScreen = (props) =>  {
     })();
   }, []);
 
-  //attempting to get location
+  //attempting to get location view
   let view =
-  <View style={styles.center}>
-  <Text>Getting Location..</Text>
-  </View>;
-  //error getting location
+    <View style={styles.center}>
+      <Text>Getting Location..</Text>
+    </View>;
+
+  //error getting location view
   if (errorMsg) {
     view =
-    <View style={styles.center}>
-    <Text>{errorMsg}</Text>
-    </View>;
+      <View style={styles.center}>
+        <Text>{errorMsg}</Text>
+      </View>;
   }
-  //location was found
+
+  //location was found view
   else if (region) {
     view =
-    <View style={styles.container}>
-    <MapView style={styles.map}
-    provider = {PROVIDER_GOOGLE}
-    ref={mapRef}
-    initialRegion = {region}
-    //mapType={MAP_TYPES.HYBRID}
-    onRegionChange={region => setRegion(region)}
-    onRegionChangeComplete={() => {setMarkerList([]); mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder, topics).then(markers => setMarkerList(markers))) }}
-    >
+      <View style={styles.container}>
+        <MapView style={styles.map}
+          provider={PROVIDER_GOOGLE}
+          ref={mapRef}
+          initialRegion={region}
+          //mapType={MAP_TYPES.HYBRID}
+          onRegionChange={region => setRegion(region)}
+          //get boundries, then pull markers, then set markers
+          onRegionChangeComplete={() => { mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder, topics).then(markers => setMarkerList(markers))) }}
+        >
 
-    {displayMarkers(markerList)}
+          {displayMarkers(markerList)}
 
-    </MapView>
-    <View style={[styles.bubble, styles.latlng]}>
-        <Text style={styles.centeredText}>
-          {region.latitude.toPrecision(7)},
+        </MapView>
+        {/*lat long info bubble*/}
+        <View style={[styles.bubble, styles.latlng]}>
+          <Text style={styles.centeredText}>
+            {region.latitude.toPrecision(7)},
           {region.longitude.toPrecision(7)}
-        </Text>
-      </View>
-      {/*<Button title = 'Restricted Markers' onPress = {() => mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))}></Button>
+          </Text>
+        </View>
+
+        {/*<Button title = 'Restricted Markers' onPress = {() => mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))}></Button>
       <Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>*/}
-    </View>
+      </View>
   }
 
   return (
-  <View style={styles.container}>
-    {view}
-    <View style={styles.mapDrawerOverlay}/>
-  </View>
+    <View style={styles.container}>
+      {view}
+      <View style={styles.mapDrawerOverlay} />
+    </View>
   );
 }
 
 const getTopics = async () => {
-  const email =  Firebase.auth().currentUser.email;
+  const email = Firebase.auth().currentUser.email;
   const collectionName = "NewUsers"
   const db = Firebase.firestore();
   const ref = db.collection(collectionName).doc(email)
+  //add try catch
   const doc = await ref.get();
 
   if (!doc.exists) {
@@ -133,6 +144,7 @@ const getTopics = async () => {
 }
 
 const pullMarkers = async (mapborder, topics) => {
+  //need to change database layout and then update this
   articles = []
   //console.log(topics)
   const southWest = geohash.encode(mapborder.southWest.latitude, mapborder.southWest.longitude)
@@ -140,54 +152,56 @@ const pullMarkers = async (mapborder, topics) => {
   const collectionName = "long-beach"
   const db = Firebase.firestore();
   const ref = db.collection(collectionName)
-  //make this a compound query in the future to select topics, right now it pulls everything
+  //make this a compound query in the future to select topics, right now it pulls everything and then filters by topic later
   ref.where("geohash", ">=", southWest).where("geohash", "<=", northEast)
+  //add try catch
   const snapshot = await ref.get();
   if (snapshot.empty) {
     //Alert.alert('No matching documents.');
     //no articles in location, return empty array
     return [];
-}
-else {
+  }
+  else {
     snapshot.forEach(doc => {
-      if(topics.includes(doc.data().topic)) {
-          articles.push({"Headline":doc.data().name, "Description":doc.data().summary, "Url":doc.data().url, "Topic":doc.data().topic, 'Geohash':doc.data().geohash, 'Publish Date':doc.data().datePublished, 'Org':doc.data().organization});
-          //console.log(doc.data().topic)
+      if (topics.includes(doc.data().topic)) {
+        articles.push({ "Headline": doc.data().name, "Description": doc.data().summary, "Url": doc.data().url, "Topic": doc.data().topic, 'Geohash': doc.data().geohash, 'Publish Date': doc.data().datePublished, 'Org': doc.data().organization });
+        //console.log(doc.data().topic)
       }
     })
     //prints how many markers were pulled
     console.log(articles.length);
     return articles;
-}
+  }
 }
 
-const displayMarkers = (articles) =>  {
+const displayMarkers = (articles) => {
   //business, crime, entertainment, health, politics, science & tech, sports, travel
   //Is there a better way to do this?
-  var mapPins = {'business': require('../assets/images/template_s.png'),
-                'crime': require('../assets/images/template_s.png'),
-                'entertainment': require('../assets/images/template_s.png'),
-                'health': require('../assets/images/template_s.png'),
-                'politics': require('../assets/images/politics_s.png'),
-                'science & tech': require('../assets/images/template_s.png'),
-                'sports': require('../assets/images/sports_s.png'),
-                'travel': require('../assets/images/template_s.png')}
- // var mapPins = {"Sports":  require('../assets/images/Sports.png'), "Politics": require('../assets/images/Politics.png')}
+  var mapPins = {
+    'business': require('../assets/images/business_s.png'),
+    'crime': require('../assets/images/crime_s.png'),
+    'entertainment': require('../assets/images/entertainment_s.png'),
+    'health': require('../assets/images/health_s.png'),
+    'politics': require('../assets/images/politics_s.png'),
+    'science & tech': require('../assets/images/science_s.png'),
+    'sports': require('../assets/images/sports_s.png'),
+    'travel': require('../assets/images/travel_s.png')
+  }
 
   const markerList = articles.map((article) =>
 
-  <Marker
-    key = {article.Url}
-    coordinate = {{ latitude: geohash.decode(article.Geohash).latitude, longitude:  geohash.decode(article.Geohash).longitude }}
-    title = {article.Headline}
-    description = {article.Description}
-    image = {mapPins[article.Topic]}
-  >
+    <Marker
+      key={article.Url}
+      coordinate={{ latitude: geohash.decode(article.Geohash).latitude, longitude: geohash.decode(article.Geohash).longitude }}
+      title={article.Headline}
+      description={article.Description}
+      image={mapPins[article.Topic]}
+    >
 
       <Callout
         alphaHitTest
         tooltip
-        onPress={e => {Linking.openURL(article.Url)}}
+        onPress={e => { Linking.openURL(article.Url) }}
       >
 
         <CustomCallout>
@@ -195,7 +209,7 @@ const displayMarkers = (articles) =>  {
         </CustomCallout>
 
       </Callout>
-  </Marker>);
+    </Marker>);
 
   return (
     <View>

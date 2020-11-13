@@ -13,6 +13,7 @@ import MultiSelect from 'react-native-multiple-select';
 
 // Import Interfaces`
 import { ICountry, IState, ICity } from 'country-state-city'
+
 var firestore = Firebase.firestore();
 
 const update = async(name, age, interests) => {
@@ -34,6 +35,7 @@ const update = async(name, age, interests) => {
         Name: name
     }
 
+    //add try catch
     await firestore.collection('NewUsers').doc(email).set(userData);
     console.log("Done updating");
 }
@@ -146,6 +148,7 @@ const getUser = async () => {
     const collectionName = "NewUsers"
     const db = Firebase.firestore();
     const ref = db.collection(collectionName).doc(email)
+    //add try catch
     const doc = await ref.get();
 
     if (!doc.exists) {
