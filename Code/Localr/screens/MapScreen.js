@@ -259,7 +259,7 @@ const displayMarkers = (articles) => {
     </Marker>);
 
   return (
-    <View>
+    <View style={ {zIndex: 10} }>
       {markerList}
     </View>
   );
