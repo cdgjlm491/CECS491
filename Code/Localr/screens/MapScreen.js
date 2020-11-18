@@ -128,6 +128,7 @@ const MapScreen = (props) => {
           provider={PROVIDER_GOOGLE}
           ref={mapRef}
           initialRegion={region}
+          loadingEnabled ={true}
           //onPanDrag={() => console.log('dragged map')}
           onMarkerPress={() => console.log('marker selected')}
           //might fix a bug but might be android only
@@ -246,6 +247,7 @@ const displayMarkers = (articles) => {
       title={article.Headline}
       description={article.Description}
       image={mapPins[article.Topic]}
+      tracksViewChanges={false}
     >
       <Callout
         alphaHitTest
@@ -259,7 +261,7 @@ const displayMarkers = (articles) => {
     </Marker>);
 
   return (
-    <View style={ {zIndex: 10} }>
+    <View>
       {markerList}
     </View>
   );
