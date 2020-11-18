@@ -178,7 +178,7 @@ def collect() :
     db = firestore.Client()    
     for item in news_lst :
         #doc_ref = db.collection(item["city"]).document(item["id"])
-        doc_ref = db.collection("Testing Collections").doc(c).collection("Articles").document(item["id"])
+        doc_ref = db.collection("Testing Collections").document(c).collection("Articles").document(item["id"])
         doc_ref.set({
             "datePublished" : item["datePublished"],
             "name" : item["name"],
