@@ -140,8 +140,8 @@ def locate(news_lst, city) :
     #
     for item in news_lst :
         lati = min_lat + (max_lat-min_lat)*rand.random()
-        long = min_lon + (max_lon-min_lon)*rand.random()
-        ghash = geohash.encode(lati, long, 7)
+        lon = min_lon + (max_lon-min_lon)*rand.random()
+        ghash = geohash.encode(lati, lon, 7)
         loncoord = float(geohash.decode(ghash).lon)
         latcoord = float(geohash.decode(ghash).lat)
         item["geohash"] = ghash
