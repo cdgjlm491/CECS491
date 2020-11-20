@@ -5,7 +5,7 @@ import Firebase from '../components/Firebase'
 import { useIsFocused } from '@react-navigation/native';
 
 
-const SavedArticlesScreen = () => {
+const RecentlyViewedScreen = () => {
 
   const [articles, setArticles] = useState([])
   const isFocused = useIsFocused();
@@ -34,13 +34,13 @@ const SavedArticlesScreen = () => {
     </View>
   );
 }
-export default SavedArticlesScreen
+export default RecentlyViewedScreen
 
 const test = async () => {
   const email = Firebase.auth().currentUser.email;
   const collectionName = "NewUsers"
   const db = Firebase.firestore();
-  const ref = db.collection(collectionName).doc(email).collection('Saved')
+  const ref = db.collection(collectionName).doc(email).collection('Recently')
   var alist = []
   //add try catch
   await ref.get().then(querySnapshot => {

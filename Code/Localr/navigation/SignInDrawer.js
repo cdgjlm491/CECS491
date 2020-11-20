@@ -8,6 +8,7 @@ import ProfileStack from './ProfileStack'
 import MapStack from './MapStack'
 import Test from '../screens/TestScreen'
 import Saved from '../screens/SavedArticlesScreen'
+import Recently from '../screens/RecentlyViewedScreen'
 
 const MyTheme = {
   colors: {
@@ -35,6 +36,7 @@ export default function SignInStack() {
         <Drawer.Screen name="Map" component={MapStack} />
         <Drawer.Screen name="Filter" component={Filter} />
         <Drawer.Screen name="Saved Articles" component={Saved} />
+        <Drawer.Screen name="Recently Viewed" component={Recently} />
         <Drawer.Screen name="Test" component={Test} />
       </Drawer.Navigator>
     </NavigationContainer>
