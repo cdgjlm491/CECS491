@@ -5,12 +5,12 @@ import * as Location from 'expo-location';
 import MapView, { Marker, PROVIDER_GOOGLE, Callout, MAP_TYPES } from 'react-native-maps';
 import CustomCallout from '../components/CustomCallout.js';
 import geohash from "ngeohash";
-import * as Linking from 'expo-linking';
 import { useIsFocused } from '@react-navigation/native';
 import 'firebase/firestore';
 //this is required for a hack that fixes duplicate keys in the markers
 import 'react-native-get-random-values'
 import { v4 as uuidv4 } from 'uuid';
+
 
 const MapScreen = (props) => {
 
@@ -18,8 +18,7 @@ const MapScreen = (props) => {
     latitude: 33.7701,
     longitude: -118.1937,
     latitudeDelta: 0.1,
-    longitudeDelta: 0.1
-  });
+    longitudeDelta: 0.1});
 
   //notes for myself
 
@@ -62,6 +61,7 @@ const MapScreen = (props) => {
   }]);
 
   //updates markers when screen comes into focus
+
   useEffect(() => {
     if (isFocused) {
       getTopics().then(a => setTopics(a))
@@ -127,39 +127,38 @@ const MapScreen = (props) => {
         <MapView style={styles.map}
           provider={PROVIDER_GOOGLE}
           ref={mapRef}
-          initialRegion={region}
-          loadingEnabled ={true}
+          //loadingEnabled={true}
+          region={region}
           //onPanDrag={() => console.log('dragged map')}
           onMarkerPress={() => console.log('marker selected')}
           //might fix a bug but might be android only
           moveOnMarkerPress={false}
-          //causes hangs
-          //onRegionChange={region => setRegion(region)}
 
           //PROBLEM: when you select a marker and move the map the markers are refreshed causing the marker to no longer be selected
           //isGesture can prevent this if it works when deployed to the appstore, currently it is returning undefined.
           //get boundries, then pull markers, then set markers
-          onRegionChangeComplete={region, isGesture => {
+          onRegionChangeComplete={region => {
             console.log('region change complete');
             setRegion(region)
-            console.log('isGesture: ' + isGesture)
-            mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))
+            //console.log(region)
+            //mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))
           }}
         >
 
-          {displayMarkers(markerList)}
+          {displayMarkers(markerList, props)}
 
         </MapView>
+
+        <Button title = 'Load Markers' onPress = {() => mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))}></Button>
+      {/*<Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>*/}
+
         {/*lat long info bubble*/}
         <View style={[styles.bubble, styles.latlng]}>
           <Text style={styles.centeredText}>
-            {region.latitude.toPrecision(7)},
+          {region.latitude.toPrecision(7)},
           {region.longitude.toPrecision(7)}
           </Text>
         </View>
-
-        {/*<Button title = 'Restricted Markers' onPress = {() => mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))}></Button>
-      <Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>*/}
       </View>
   }
 
@@ -224,7 +223,7 @@ const pullMarkers = async (mapborder) => {
   }
 }
 
-const displayMarkers = (articles) => {
+const displayMarkers = (articles, props) => {
   //business, crime, entertainment, health, politics, science & tech, sports, travel
   //Is there a better way to do this?
   var mapPins = {
@@ -252,14 +251,14 @@ const displayMarkers = (articles) => {
       <Callout
         alphaHitTest
         tooltip
-        onPress={() => Linking.openURL(article.Url)}
+        onPress={() => props.navigation.navigate("Article", article)}
       >
         <CustomCallout>
           <Text>{article.Headline}</Text>
         </CustomCallout>
       </Callout>
     </Marker>);
-
+  //console.log(markerList)
   return (
     <View>
       {markerList}
@@ -269,12 +268,19 @@ const displayMarkers = (articles) => {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    height: '100%',
+    width: '100%',
+    //flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
+
   map: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    //top: 40,
+    //left: 40,
+    width: '100%',
+    height: '100%',
 
   },
   center: {
@@ -286,7 +292,6 @@ const styles = StyleSheet.create({
     fontSize: 35
   },
   bubble: {
-    position: 'absolute',
     backgroundColor: 'rgba(255,255,255,0.7)',
     paddingHorizontal: 18,
     paddingVertical: 12,

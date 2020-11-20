@@ -5,9 +5,10 @@ import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import AuthNavigator from './navigation/AuthNavigator'
 import * as Permissions from 'expo-permissions';
-
+import { AppearanceProvider } from 'react-native-appearance';
 
 LogBox.ignoreLogs(['Setting a timer'])
+
 
 //this is one way to create a function in react native, I will be using arrow functions from now on.
 export default function App(props) {
@@ -41,15 +42,9 @@ export default function App(props) {
     return null;
   } else {
     return (
+      <AppearanceProvider>
       <AuthNavigator/>
+      </AppearanceProvider>
     );
   }
 }
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-});

@@ -1828,6 +1828,13 @@
   dependencies:
     "@firebase/app-types" "0.6.1"
 
+"@firebase/database-types@0.x.x":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@firebase/database-types/-/database-types-0.6.1.tgz#cf1cfc03e617ed4c2561703781f85ba4c707ff65"
+  integrity sha512-JtL3FUbWG+bM59iYuphfx9WOu2Mzf0OZNaqWiQ7lJR8wBe7bS9rIm9jlBFtksB7xcya1lZSQPA/GAy2jIlMIkA==
+  dependencies:
+    "@firebase/app-types" "0.6.1"
+
 "@firebase/database@0.5.21":
   version "0.5.21"
   resolved "https://registry.yarnpkg.com/@firebase/database/-/database-0.5.21.tgz#2544399a9e018bab4241559932ccae6a9ae1cb35"
@@ -7952,6 +7959,19 @@ gensync@^1.0.0-beta.1:
   resolved "https://registry.yarnpkg.com/gensync/-/gensync-1.0.0-beta.1.tgz#58f4361ff987e5ff6e1e7a210827aa371eaac269"
   integrity sha512-r8EC6NO1sngH/zdD9fiRDLdcgnbayXah+mLgManTaIZJqEC1MZstmnox8KpnI2/fxQwrp5OpCOYWLp4rBl4Jcg==
 
+geofire-common@5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/geofire-common/-/geofire-common-5.1.0.tgz#f197c57af140a19e6259b97e5efa0eb80af2a854"
+  integrity sha512-zdVQ+QGfW6Edty/FplWANzh7M40LpagIgjHGk0mAuF58oXMosZmIYcGjmBwHoAsOCgZ1mlvTC7XvsBOYXDxAFA==
+
+geofire@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/geofire/-/geofire-5.1.0.tgz#103b32106f7aebf0cd33c205670e03468c52ef66"
+  integrity sha512-px8h7VGV7kFNTPA4rhatVTeIYEwxUFYq91LMDWBWQYucJn9LvZnE4lZkujAR9rcuhzH1nQUR3StcMJyczRbXfg==
+  dependencies:
+    "@firebase/database-types" "0.x.x"
+    geofire-common "5.1.0"
+
 geofirestore-core@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/geofirestore-core/-/geofirestore-core-4.1.2.tgz#cd712f2d058b5364aca061a79424f4eb5f421cb5"
@@ -13512,6 +13532,15 @@ react-is@^16.12.0, react-is@^16.13.0, react-is@^16.7.0, react-is@^16.8.1, react-
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
+
+react-native-appearance@~0.3.3:
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/react-native-appearance/-/react-native-appearance-0.3.4.tgz#2cbcbc5142cdc1898c116684f519b16c879cbec2"
+  integrity sha512-Vz3zdJbAEiMDwuw6wH98TT1WVfBvWjvANutYtkIbl16KGRCigtSgt6IIiLsF3/TSS3y3FtHhWDelFeGw/rtuig==
+  dependencies:
+    fbemitter "^2.1.1"
+    invariant "^2.2.4"
+    use-subscription "^1.0.0"
 
 react-native-dotenv@^0.2.0:
   version "0.2.0"

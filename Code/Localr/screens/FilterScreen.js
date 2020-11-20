@@ -1,165 +1,170 @@
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Button } from 'react-native';
-import { CheckBox } from 'react-native-elements'
+import { CheckBox, ThemeProvider } from 'react-native-elements'
 import Firebase from '../components/Firebase'
+import 'react-native-get-random-values'
+import { v4 as uuidv4 } from 'uuid';
+
+const theme = {
+  CheckBox: {
+    uncheckedColor: '#17AAEA',
+    checkedColor: '#F05D5E',
+  },
+};
 
 const FilterScreen = () => {
 
-  //I don't like this, but it works
-
-  const [business, setBusiness] = useState(false);
-  const [entertainment, setEntertainment] = useState(false);
-  const [health, setHealth] = useState(false);
-  const [politics, setPolitics] = useState(false);
-  const [crime, setCrime] = useState(false);
-  const [science, setScience] = useState(false);
-  const [sports, setSports] = useState(false);
-  const [travel, setTravel] = useState(false);
+  const [topics, setTopics] = useState({
+    'business': false, 'entertainment': false, 'health': false, 'politics': false,
+    'crime': false, 'science': false, 'sports': false, 'travel': false
+  })
 
 
-const getTopics = async () => {
-  const email = Firebase.auth().currentUser.email;
-  const collectionName = "NewUsers"
-  const db = Firebase.firestore();
-  const ref = db.collection(collectionName).doc(email)
+  const getTopics = async () => {
+    const email = Firebase.auth().currentUser.email;
+    const collectionName = "NewUsers"
+    const db = Firebase.firestore();
+    const ref = db.collection(collectionName).doc(email)
 
-  //add try catch
-  const doc = await ref.get();
+    //add try catch
+    const doc = await ref.get();
 
-  if (!doc.exists) {
-    console.log('No such document!');
-  } else {
-    console.log('Document data:', doc.data());
-    return doc.data().Interests
+    if (!doc.exists) {
+      console.log('No such document!');
+    } else {
+      //console.log('Document data:', doc.data());
+      return doc.data().Interests
+    }
   }
 
-}
+
+  const update = async () => {
+    topiclist = []
+    const email = Firebase.auth().currentUser.email;
+    for (key in topics) {
+      if (topics[key]) {
+        topiclist.push(key.toString())
+      }
+    }
 
 
-const update = async () => {
-  topiclist = []
-  const email = Firebase.auth().currentUser.email;
-
-  if (politics) {
-    topiclist.push('politics')
+    //add try catch
+    const ref = await Firebase.firestore().collection('NewUsers').doc(email)
+    const res = await ref.update({ Interests: topiclist })
   }
-  if (business) {
-    topiclist.push('business')
-  }
-  if (crime) {
-    topiclist.push('crime')
-  }
-  if (entertainment) {
-    topiclist.push('entertainment')
-  }
-  if (health) {
-    topiclist.push('health')
-  }
-  if (sports) {
-    topiclist.push('sports')
-  }
-  if (travel) {
-    topiclist.push('travel')
-  }
-  if (science) {
-    topiclist.push('science & tech')
-  }
-  console.log(topiclist)
-
-
-  //add try catch
-  const ref = await Firebase.firestore().collection('NewUsers').doc(email)
-  const res = await ref.update({ Interests: topiclist })
-}
 
   useEffect(() => {
     // Runs after the first render() lifecycle
+    console.log('useEffect')
     getTopics().then(topiclist => {
-      console.log(topiclist)
+      topicstate = {
+        'business': false, 'entertainment': false, 'health': false, 'politics': false,
+        'crime': false, 'science': false, 'sports': false, 'travel': false
+      }
+      //console.log(topiclist)
       topiclist.forEach(topic => {
-        switch (topic) {
-          case 'business':
-            setBusiness(true)
-            break;
-          case 'entertainment':
-            setEntertainment(true)
-            break;
-          case 'health':
-            setHealth(true)
-            break;
-          case 'politics':
-            setPolitics(true)
-            break;
-          case 'crime':
-            setCrime(true)
-            break;
-          case 'science & tech':
-            setScience(true)
-            break;
-          case 'sports':
-            setSports(true)
-            break;
-          case 'travel':
-            setTravel(true)
-            break;
-          default:
-            console.log('error')
-        }
+        topicstate[topic] = true
       })
+      setTopics(topicstate)
+      console.log('useEffect set')
     })
   }, []);
 
+  const updateTopics = (topic) => {
+    topicstate = { ...topics }
+    topicstate[topic] = !topicstate[topic]
+    setTopics(topicstate)
+  }
+
+  //can't get this to work for some reason
+  /*
+  const generateCheckBoxes = () => {
+    checkList = []
+    for (topic in topics) {
+    checkList.push(<CheckBox
+    title={topic.charAt(0).toUpperCase() + topic.slice(1)}
+    checked={topics[topic]}
+    onPress={() => updateTopics(topic)}
+    style={styles.checkbox}
+    key={uuidv4()}
+   />
+    )}
+    return (
+     <View>
+       {checkList}
+     </View>
+   );
+   }
+ */
 
   return (
-    <View style={styles.contentContainer}>
-      <CheckBox
-        title='Politics'
-        checked={politics}
-        onPress={() => setPolitics(!politics)}
-        style={styles.checkbox}
-      />
-      <CheckBox
-        title='Business'
-        checked={business}
-        onPress={() => setBusiness(!business)}
-        style={styles.checkbox}
-      />
-      <CheckBox
-        title='Crime'
-        checked={crime}
-        onPress={() => setCrime(!crime)}
-        style={styles.checkbox}
-      />
-      <CheckBox
-        title='Health'
-        checked={health}
-        onPress={() => setHealth(!health)}
-        style={styles.checkbox}
-      />
-      <CheckBox
-        title='Entertainment'
-        checked={entertainment}
-        onPress={() => setEntertainment(!entertainment)}
-        style={styles.checkbox}
-      />
-      <CheckBox
-        title='Science and tech'
-        checked={science}
-        onPress={() => setScience(!science)}
-        style={styles.checkbox}
-      />
-      <CheckBox
-        title='Travel'
-        checked={travel}
-        onPress={() => setTravel(!travel)}
-        style={styles.checkbox}
-      />
-      <CheckBox
-        title='Sports'
-        checked={sports}
-        onPress={() => setSports(!sports)}
-        style={styles.checkbox}
-      />
+    <View style={styles.container}>
+      <ThemeProvider theme={theme}>
+        <CheckBox
+          containerStyle={styles.checkb}
+          textStyle={styles.checkt}
+          title='Politics'
+          checked={topics['politics']}
+          onPress={() => updateTopics('politics')}
+          style={styles.checkbox}
+        />
+        <CheckBox
+          containerStyle={styles.checkb}
+          textStyle={styles.checkt}
+          title='Business'
+          checked={topics['business']}
+          onPress={() => updateTopics('business')}
+          style={styles.checkbox}
+        />
+        <CheckBox
+          containerStyle={styles.checkb}
+          textStyle={styles.checkt}
+          title='Crime'
+          checked={topics['crime']}
+          onPress={() => updateTopics('crime')}
+          style={styles.checkbox}
+        />
+        <CheckBox
+          containerStyle={styles.checkb}
+          textStyle={styles.checkt}
+          title='Health'
+          checked={topics['health']}
+          onPress={() => updateTopics('health')}
+          style={styles.checkbox}
+        />
+        <CheckBox
+          containerStyle={styles.checkb}
+          textStyle={styles.checkt}
+          title='Entertainment'
+          checked={topics['entertainment']}
+          onPress={() => updateTopics('entertainment')}
+          style={styles.checkbox}
+        />
+        <CheckBox
+          containerStyle={styles.checkb}
+          textStyle={styles.checkt}
+          title='Science and tech'
+          checked={topics['science']}
+          onPress={() => updateTopics('science')}
+          style={styles.checkbox}
+        />
+        <CheckBox
+          containerStyle={styles.checkb}
+          textStyle={styles.checkt}
+          title='Travel'
+          checked={topics['travel']}
+          onPress={() => updateTopics('travel')}
+          style={styles.checkbox}
+        />
+        <CheckBox
+          containerStyle={styles.checkb}
+          textStyle={styles.checkt}
+          title='Sports'
+          checked={topics['sports']}
+          onPress={() => updateTopics('sports')}
+          style={styles.checkbox}
+        />
+      </ThemeProvider>
       <Button title='Update' onPress={() => update()}></Button>
     </View>
   );
@@ -172,34 +177,16 @@ export default FilterScreen
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    //alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgb(85, 91, 110)'
   },
-  contentContainer: {
-    paddingTop: 15
+  checkb: {
+    backgroundColor: 'rgb(85, 91, 110)',
+    borderColor: 'rgb(23, 170, 234)'
   },
-  button: {
-    marginTop: 10
-  },
-  input: {
-    marginTop: 10
-  },
-  image: {
-    height: 200,
-    width: 200,
-    resizeMode: 'contain',
-  },
-  logoContainer: {
-    alignItems: 'center',
-  },
-  icon: {
-    marginRight: 10
-  },
-  mapDrawerOverlay: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    opacity: 0.0,
-    height: "100%",
-    width: 25,
-  },
+  checkt: {
+    color: 'rgb(252, 252, 255)',
+  }
 });
