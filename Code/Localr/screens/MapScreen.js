@@ -40,6 +40,7 @@ const MapScreen = (props) => {
 
   const mapRef = useRef(null)
   const [errorMsg, setErrorMsg] = useState(null);
+  
 
   const isFocused = useIsFocused();
 
@@ -99,22 +100,26 @@ const MapScreen = (props) => {
       try {
         let location = await Location.getCurrentPositionAsync();
         console.log(location)
+        /** 
         setRegion({
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1
         })
+        */
       } catch {
         console.log('getCurrentPositionAsync error')
         setErrorMsg('Cant get current position')
         //default region
+        /*
         setRegion({
           latitude: 33.7701,
           longitude: -118.1937,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1
         })
+        */
       }
 
 
@@ -175,6 +180,41 @@ const MapScreen = (props) => {
   return (
     <View style={styles.container}>
       {view}
+      <View style={styles.searchbar}>
+        <GooglePlacesAutocomplete
+          placeholder='Search'
+                
+          onPress={(data, details = null) => {
+                            Geocoder.from(data['description'])
+                            .then(json => {
+                              var address = json.results[0].address_components;
+                              for (var i = 0; i < address.length; i++) {
+                                if (address[i]["types"].length == 2 && address[i]["types"][0] === "locality" && address[i]["types"][1] === "political") {
+                                  setCity(address[i]["long_name"]);
+                                  break;
+                                }
+                              }
+                              //Query the datab
+                              var location = json.results[0].geometry.location;
+                              const newRegion = {
+                                latitude: location['lat'],
+                                longitude: location['lng'],
+                                latitudeDelta: 0.1,
+                                longitudeDelta: 0.1,
+                              }
+                              console.log("Update region");
+                              console.log(newRegion);
+                              setRegion(newRegion);
+
+                            })
+                            .catch(error => console.warn(error));
+                }}
+                query={{
+                    key: GOOGLE_PLACES_API,
+                    language: 'en',
+                }}
+            />
+    </View>
       <View style={styles.mapDrawerOverlay} />
     </View>
   );
@@ -279,8 +319,21 @@ const displayMarkers = (articles) => {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
+    //flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  searchbar: {
+    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    height: 100,
+    top: 60,
+    left: 0,
+    width: '100%',
+
+
+    //paddingHorizontal: 10,
+    //paddingVertical: 5,
   },
   map: {
     ...StyleSheet.absoluteFillObject,
