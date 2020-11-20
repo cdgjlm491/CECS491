@@ -141,6 +141,7 @@ const MapScreen = (props) => {
         <MapView style={styles.map}
           provider={PROVIDER_GOOGLE}
           ref={mapRef}
+          region = {region}
           initialRegion={region}
           loadingEnabled ={true}
           //onPanDrag={() => console.log('dragged map')}
@@ -297,6 +298,7 @@ const displayMarkers = (articles) => {
       description={article.Description}
       image={mapPins[article.Topic]}
       tracksViewChanges={false}
+      onpress  = {console.log("Press on this marker")}
     >
       <Callout
         alphaHitTest
@@ -330,10 +332,6 @@ const styles = StyleSheet.create({
     top: 60,
     left: 0,
     width: '100%',
-
-
-    //paddingHorizontal: 10,
-    //paddingVertical: 5,
   },
   map: {
     ...StyleSheet.absoluteFillObject,
