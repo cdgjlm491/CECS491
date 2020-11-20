@@ -8,9 +8,16 @@ import geohash from "ngeohash";
 import * as Linking from 'expo-linking';
 import { useIsFocused } from '@react-navigation/native';
 import 'firebase/firestore';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import Geocoder from 'react-native-geocoding';
 //this is required for a hack that fixes duplicate keys in the markers
 import 'react-native-get-random-values'
 import { v4 as uuidv4 } from 'uuid';
+import {
+  GOOGLE_PLACES_API
+} 
+from 'react-native-dotenv'
+Geocoder.init(GOOGLE_PLACES_API, {language: 'en'})
 
 const MapScreen = (props) => {
 
@@ -20,6 +27,7 @@ const MapScreen = (props) => {
     latitudeDelta: 0.1,
     longitudeDelta: 0.1
   });
+  const [city, setCity] = useState("");
 
   //notes for myself
 
@@ -124,6 +132,7 @@ const MapScreen = (props) => {
   if (region) {
     view =
       <View style={styles.container}>
+    
         <MapView style={styles.map}
           provider={PROVIDER_GOOGLE}
           ref={mapRef}
