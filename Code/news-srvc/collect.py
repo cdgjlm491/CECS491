@@ -161,37 +161,39 @@ vectorizer = joblib.load("vectorizer_02.joblib")
 
 @app.route('/')
 def collect() :
-  for c in cities:
-    # scrape
-    news = webscrape(c, subscription_key, search_url)
-    # geohash and id
-    news_lst = locate(news,c)
-    # label
-    ln = LabelNews(labeler, model, news_lst, vectorizer)
-    news_lst = ln.assign_topics()
-    #
-    # Project ID determined by GCLOUD_PROJECT environment variable 
-    print("writing to Firestore ...\n")
-    db = firestore.Client()    
-    for item in news_lst :
-        #doc_ref = db.collection(item["city"]).document(item["id"])
-        doc_ref = db.collection("Testing Collections").document(c).collection("Articles").document(item["id"])
-        doc_ref.set({
-            "datePublished" : item["datePublished"],
-            "name" : item["name"],
-            "organization" : item["organization"],
-            "summary" : item["summary"],
-            "url" : item["url"],
-            "geohash" : item["geohash"],
-            "location" : item["location"],
-            "topic" : item["topic"],
-        })    
-    #
+    '''docstring'''
     text = []
-    for i in news_lst :
-        text.append(i["topic"] + " : " + i["name"])
+    #
+    for c in cities:
+        # scrape
+        news = webscrape(c, subscription_key, search_url)
+        # geohash and id
+        news_lst = locate(news,c)
+        # label
+        ln = LabelNews(labeler, model, news_lst, vectorizer)
+        news_lst = ln.assign_topics()
+        #
+        # Project ID determined by GCLOUD_PROJECT environment variable 
+        print("writing to Firestore ...\n")
+        db = firestore.Client()    
+        for item in news_lst :
+            #doc_ref = db.collection(item["city"]).document(item["id"])
+            doc_ref = db.collection("Testing Collections").document(c).collection("Articles").document(item["id"])
+            doc_ref.set({
+                "datePublished" : item["datePublished"],
+                "name" : item["name"],
+                "organization" : item["organization"],
+                "summary" : item["summary"],
+                "url" : item["url"],
+                "geohash" : item["geohash"],
+                "location" : item["location"],
+                "topic" : item["topic"],
+            })
+        #    
+        for i in news_lst :
+            text.append(i["topic"] + " : " + i["name"])
+    #    
     text = ";_____".join(text)
-    
     name = os.environ.get('NAME', text)
     return "{}".format(name)
 
@@ -201,7 +203,3 @@ if __name__ == "__main__" :
     app.run(debug=True, host="0.0.0.0", port=os.environ.get("PORT", 8080))
     #
     print("\nDONE!")
-
-
-
-
