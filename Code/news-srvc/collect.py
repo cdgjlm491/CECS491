@@ -142,13 +142,10 @@ def locate(news_lst, city) :
         lati = min_lat + (max_lat-min_lat)*rand.random()
         long = min_lon + (max_lon-min_lon)*rand.random()
         ghash = geohash.encode(lati, long, 7)
-        loncoord = float(geohash.decode(ghash).lat)
-        latcoord = float(geohash.decode(ghash).lon)
+        loncoord = float(geohash.decode(ghash).lon)
+        latcoord = float(geohash.decode(ghash).lat)
         item["geohash"] = ghash
         item["id"] = gen_id(item)
-        #item["location"] = str(loncoord) + "," + str(latcoord)
-        #item["longitude"] = loncoord
-        #item["latitude"] = latcoord
         item["location"] = firestore.GeoPoint(latcoord, loncoord)
     return news_lst
 #===============================================================================
@@ -186,7 +183,6 @@ def collect() :
             "summary" : item["summary"],
             "url" : item["url"],
             "geohash" : item["geohash"],
-            #"location" : firestore.GeoPoint(item["latitude"], item["longitude"]),
             "location" : item["location"],
             "topic" : item["topic"],
         })    
@@ -205,3 +201,7 @@ if __name__ == "__main__" :
     app.run(debug=True, host="0.0.0.0", port=os.environ.get("PORT", 8080))
     #
     print("\nDONE!")
+
+
+
+
