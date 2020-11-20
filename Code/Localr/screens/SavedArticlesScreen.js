@@ -5,7 +5,7 @@ import Firebase from '../components/Firebase'
 import { useIsFocused } from '@react-navigation/native';
 
 
-const TestScreen = () => {
+const SavedArticlesScreen = () => {
 
   const [articles, setArticles] = useState([])
   const isFocused = useIsFocused();
@@ -34,7 +34,7 @@ const TestScreen = () => {
     </View>
   );
 }
-export default TestScreen
+export default SavedArticlesScreen
 
 const test = async () => {
   const email = Firebase.auth().currentUser.email;

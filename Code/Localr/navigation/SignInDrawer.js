@@ -7,8 +7,9 @@ import Map from '../screens/MapScreen.js'
 import ProfileStack from './ProfileStack'
 import MapStack from './MapStack'
 import Test from '../screens/TestScreen'
-const MyTheme = {
+import Saved from '../screens/SavedArticlesScreen'
 
+const MyTheme = {
   colors: {
     primary: 'rgb(23, 170, 234)',
     //background: 'rgb(252, 252, 255)',
@@ -33,6 +34,7 @@ export default function SignInStack() {
         <Drawer.Screen name= "User Profile" component={ProfileStack} />
         <Drawer.Screen name="Map" component={MapStack} />
         <Drawer.Screen name="Filter" component={Filter} />
+        <Drawer.Screen name="Saved Articles" component={Saved} />
         <Drawer.Screen name="Test" component={Test} />
       </Drawer.Navigator>
     </NavigationContainer>

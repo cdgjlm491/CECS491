@@ -5,7 +5,11 @@ import Firebase from '../components/Firebase'
 import 'react-native-get-random-values'
 import { v4 as uuidv4 } from 'uuid';
 
-const theme = {
+
+//todo: put checkboxes into flatlist
+
+
+const myTheme = {
   CheckBox: {
     uncheckedColor: '#17AAEA',
     checkedColor: '#F05D5E',
@@ -99,7 +103,7 @@ const FilterScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={myTheme}>
         <CheckBox
           containerStyle={styles.checkb}
           textStyle={styles.checkt}
