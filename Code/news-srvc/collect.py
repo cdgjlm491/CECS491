@@ -140,15 +140,12 @@ def locate(news_lst, city) :
     #
     for item in news_lst :
         lati = min_lat + (max_lat-min_lat)*rand.random()
-        long = min_lon + (max_lon-min_lon)*rand.random()
-        ghash = geohash.encode(lati, long, 7)
-        loncoord = float(geohash.decode(ghash).lat)
-        latcoord = float(geohash.decode(ghash).lon)
+        lon = min_lon + (max_lon-min_lon)*rand.random()
+        ghash = geohash.encode(lati, lon, 7)
+        loncoord = float(geohash.decode(ghash).lon)
+        latcoord = float(geohash.decode(ghash).lat)
         item["geohash"] = ghash
         item["id"] = gen_id(item)
-        #item["location"] = str(loncoord) + "," + str(latcoord)
-        #item["longitude"] = loncoord
-        #item["latitude"] = latcoord
         item["location"] = firestore.GeoPoint(latcoord, loncoord)
     return news_lst
 #===============================================================================
@@ -164,38 +161,39 @@ vectorizer = joblib.load("vectorizer_02.joblib")
 
 @app.route('/')
 def collect() :
-  for c in cities:
-    # scrape
-    news = webscrape(c, subscription_key, search_url)
-    # geohash and id
-    news_lst = locate(news,c)
-    # label
-    ln = LabelNews(labeler, model, news_lst, vectorizer)
-    news_lst = ln.assign_topics()
-    #
-    # Project ID determined by GCLOUD_PROJECT environment variable 
-    print("writing to Firestore ...\n")
-    db = firestore.Client()    
-    for item in news_lst :
-        #doc_ref = db.collection(item["city"]).document(item["id"])
-        doc_ref = db.collection("Testing Collections").document(c).collection("Articles").document(item["id"])
-        doc_ref.set({
-            "datePublished" : item["datePublished"],
-            "name" : item["name"],
-            "organization" : item["organization"],
-            "summary" : item["summary"],
-            "url" : item["url"],
-            "geohash" : item["geohash"],
-            #"location" : firestore.GeoPoint(item["latitude"], item["longitude"]),
-            "location" : item["location"],
-            "topic" : item["topic"],
-        })    
-    #
+    '''docstring'''
     text = []
-    for i in news_lst :
-        text.append(i["topic"] + " : " + i["name"])
+    #
+    for c in cities:
+        # scrape
+        news = webscrape(c, subscription_key, search_url)
+        # geohash and id
+        news_lst = locate(news,c)
+        # label
+        ln = LabelNews(labeler, model, news_lst, vectorizer)
+        news_lst = ln.assign_topics()
+        #
+        # Project ID determined by GCLOUD_PROJECT environment variable 
+        print("writing to Firestore ...\n")
+        db = firestore.Client()    
+        for item in news_lst :
+            #doc_ref = db.collection(item["city"]).document(item["id"])
+            doc_ref = db.collection("Testing Collections").document(c).collection("Articles").document(item["id"])
+            doc_ref.set({
+                "datePublished" : item["datePublished"],
+                "name" : item["name"],
+                "organization" : item["organization"],
+                "summary" : item["summary"],
+                "url" : item["url"],
+                "geohash" : item["geohash"],
+                "location" : item["location"],
+                "topic" : item["topic"],
+            })
+        #    
+        for i in news_lst :
+            text.append(i["topic"] + " : " + i["name"])
+    #    
     text = ";_____".join(text)
-    
     name = os.environ.get('NAME', text)
     return "{}".format(name)
 
