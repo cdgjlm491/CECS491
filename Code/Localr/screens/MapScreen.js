@@ -88,7 +88,7 @@ const MapScreen = (props) => {
         mapRef.current.animateToRegion(test)
         setMarkerList([])
       }
-      mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers))))
+      mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers, props))))
     }
   }, [isFocused]);
 
@@ -171,7 +171,7 @@ const MapScreen = (props) => {
             //setRegion(region)
             //console.log(region)
             //Create expieremental option to enable this? Uses more database reads than the button.
-            //mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers))))
+            //mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers, props))))
           }}
         >
 
@@ -191,7 +191,7 @@ const MapScreen = (props) => {
             mapRef.current.animateToRegion(test)
             setMarkerList([])
           }
-          mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers))))
+          mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers, props))))
           //mapRef.current.forceUpdate()
         }}></Button>
         {/*<Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>*/}
@@ -275,7 +275,7 @@ const getArticles = async (mapborder, region) => {
   }
 }
 
-const createMarkers = (articles) => {
+const createMarkers = (articles, props) => {
   //business, crime, entertainment, health, politics, science & tech, sports, travel
   //Is there a better way to do this?
   var mapPins = {

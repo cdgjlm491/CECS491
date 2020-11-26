@@ -20,6 +20,7 @@ const SavedArticlesScreen = () => {
   return (
     <View style={styles.container}>
       <FlatList
+      inverted
         data={articles}
         renderItem={({ item }) => (
           <ListItem style={styles.item}

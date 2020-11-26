@@ -4,6 +4,9 @@ import { CheckBox, ListItem } from 'react-native-elements'
 import Firebase from '../components/Firebase'
 import { useIsFocused } from '@react-navigation/native';
 
+//this is required for a hack that fixes duplicate keys in the markers
+import 'react-native-get-random-values'
+import { v4 as uuidv4 } from 'uuid';
 
 const RecentlyViewedScreen = () => {
 
@@ -20,6 +23,7 @@ const RecentlyViewedScreen = () => {
   return (
     <View style={styles.container}>
       <FlatList
+      inverted
         data={articles}
         renderItem={({ item }) => (
           <ListItem style={styles.item}
@@ -29,7 +33,7 @@ const RecentlyViewedScreen = () => {
           textStyle={styles.litemt}
           onPress={() => Linking.openURL(item.Url)}/>
         )}
-        keyExtractor={item => item.Url}
+        keyExtractor={item => String(item.Geohash) + item.Headline}
       />
     </View>
   );
