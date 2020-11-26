@@ -78,60 +78,69 @@ const MapScreen = (props) => {
   useEffect(() => {
     if (isFocused) {
       getTopics().then(a => setTopics(a))
+      if (Device.osName != 'Android') {
+        test = {
+          latitude: region.latitude + .00001,
+          longitude: region.longitude + .00001,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1
+        }
+        mapRef.current.animateToRegion(test)
+        setMarkerList([])
+      }
       mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers))))
     }
   }, [isFocused]);
 
+  /*
+    //trying to check for user location, not finished
+    useEffect(() => {
+      (async () => {
 
-  //trying to check for user location, not finished
-  useEffect(() => {
-    (async () => {
+        //check location service status
+        try {
+          await Location.requestPermissionsAsync();
+        } catch {
+          console.log('requestPermissionsAsync error')
+          setErrorMsg('Permission to access location was denied');
+        }
+        try {
+          await Location.hasServicesEnabledAsync()
+        } catch {
+          console.log('hasServicesEnabledAsync error')
+          setErrorMsg('Location service is disabled or inaccesable.');
+        }
 
-      //check location service status
-      try {
-        await Location.requestPermissionsAsync();
-      } catch {
-        console.log('requestPermissionsAsync error')
-        setErrorMsg('Permission to access location was denied');
-      }
-      try {
-        await Location.hasServicesEnabledAsync()
-      } catch {
-        console.log('hasServicesEnabledAsync error')
-        setErrorMsg('Location service is disabled or inaccesable.');
-      }
+        //save last known location and use it instead of the users current location?
+        try {
+          let location = await Location.getCurrentPositionAsync();
+          console.log(location)
+          setRegion({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1
+          })
 
-      //save last known location and use it instead of the users current location?
-      try {
-        let location = await Location.getCurrentPositionAsync();
-        console.log(location)
-        setRegion({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1
-        })
-
-      } catch {
-        console.log('getCurrentPositionAsync error, getting last position')
-        setErrorMsg('Cant get current position, getting last position')
-        let location = await Location.getLastKnownPositionAsync();
-       if(location) {
-        setRegion({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1
-        })
-      }
-      }
-
-
-    })();
-  }, []);
+        } catch {
+          console.log('getCurrentPositionAsync error, getting last position')
+          setErrorMsg('Cant get current position, getting last position')
+          let location = await Location.getLastKnownPositionAsync();
+         if(location) {
+          setRegion({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1
+          })
+        }
+        }
+      })();
+    }, []);
+    */
 
   onRegionChange = (region) => {
-      setRegion(region)
+    setRegion(region)
   }
 
   //attempting to get location view
@@ -172,18 +181,25 @@ const MapScreen = (props) => {
 
         <Button title='Load Markers' onPress={() => {
           //This is a hack to get this working on IOS, however if the user is clicked on a marker it will become unclicked
-          if(Device.osName != 'Android') {
+          if (Device.osName != 'Android') {
+            test = {
+              latitude: region.latitude + .00001,
+              longitude: region.longitude + .00001,
+              latitudeDelta: 0.1,
+              longitudeDelta: 0.1
+            }
+            mapRef.current.animateToRegion(test)
             setMarkerList([])
           }
           mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers))))
           //mapRef.current.forceUpdate()
-          }}></Button>
+        }}></Button>
         {/*<Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>*/}
 
         {/*lat long info bubble*/}
         <View style={[styles.bubble, styles.latlng]}>
           <Text style={styles.centeredText}>
-          {region.latitude.toPrecision(7)},
+            {region.latitude.toPrecision(7)},
           {region.longitude.toPrecision(7)}
           </Text>
         </View>
@@ -233,7 +249,7 @@ const getArticles = async (mapborder, region) => {
   const geocollection = gf.collection("Testing Collections").doc("long-beach").collection("Articles")
 
   //get all docs near the current region
-  const query = geocollection.near({ center: new firebase.firestore.GeoPoint(region.latitude, region.longitude), radius: distancekm/2 });
+  const query = geocollection.near({ center: new firebase.firestore.GeoPoint(region.latitude, region.longitude), radius: distancekm / 2 });
 
   //add try catch
   const snapshot = await query.get();
@@ -285,15 +301,15 @@ const createMarkers = (articles) => {
       //tracksInfoWindowChanges = {true}
       tracksViewChanges={true}
     >
-    <Callout
-      alphaHitTest
-      tooltip
-      onPress={() => props.navigation.navigate("Article", article)}
-    >
-      <CustomCallout>
-        <Text>{article.Headline}</Text>
-      </CustomCallout>
-    </Callout>
+      <Callout
+        alphaHitTest
+        tooltip
+        onPress={() => props.navigation.navigate("Article", article)}
+      >
+        <CustomCallout>
+          <Text>{article.Headline}</Text>
+        </CustomCallout>
+      </Callout>
 
     </Marker>);
   //console.log(markerList)
