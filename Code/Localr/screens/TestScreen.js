@@ -3,7 +3,8 @@ import { View, StyleSheet, Alert, Button, Text, SafeAreaView, FlatList, StatusBa
 import { CheckBox, ListItem } from 'react-native-elements'
 import Firebase from '../components/Firebase'
 import { useIsFocused } from '@react-navigation/native';
-
+import geohash from "ngeohash";
+import * as firebase from 'firebase'
 
 const TestScreen = () => {
 
@@ -13,43 +14,52 @@ const TestScreen = () => {
   useEffect(() => {
     console.log('useEffect')
     if (isFocused) {
-    test().then(x => setArticles(x))
     }
   }, [isFocused])
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={articles}
-        renderItem={({ item }) => (
-          <ListItem style={styles.item}
-          title={item.Headline}
-          subtitle={item.Url}
-          containerStyle={styles.litem}
-          textStyle={styles.litemt}
-          onPress={() => Linking.openURL(item.Url)}/>
-        )}
-        keyExtractor={item => item.Url}
-      />
+      <Button
+      title='test'
+      onPress = {() => test()}></Button>
+            <Button
+      title='test2'
+      onPress = {() => test2()}></Button>
     </View>
   );
 }
 export default TestScreen
 
-const test = async () => {
-  const email = Firebase.auth().currentUser.email;
-  const collectionName = "NewUsers"
+const test = () => {
   const db = Firebase.firestore();
-  const ref = db.collection(collectionName).doc(email).collection('Articles')
-  var alist = []
-  //add try catch
-  await ref.get().then(querySnapshot => {
-    querySnapshot.forEach(doc => {
-      //console.log(doc.id, " => ", doc.data());
-      alist.push(doc.data())
+  db.collection("Testing Collections").doc('long-beach').collection('Articles').get().then(function(querySnapshot) {
+    querySnapshot.forEach(function(doc) {
+        console.log(doc.data().geohash)
+        var latlong = geohash.decode(doc.data().geohash)
+        console.log(latlong)
+        doc.ref.update({
+          coordinates: new firebase.firestore.GeoPoint(latlong.latitude, latlong.longitude),
+          g: {
+            geohash: doc.data().geohash,
+            geopoint: new firebase.firestore.GeoPoint(latlong.latitude, latlong.longitude)
+          }
+      });
     });
-  });
-  return alist
+});
+}
+
+const test2 = () => {
+  const db = Firebase.firestore();
+  db.collection("Testing Collections").doc('long-beach').collection('Articles').get().then(function(querySnapshot) {
+    querySnapshot.forEach(function(doc) {
+        //console.log(doc.data().geohash)
+        var latlong = geohash.decode(doc.data().geohash)
+        //console.log(latlong)
+        doc.ref.update({
+          geohash: firebase.firestore.FieldValue.delete()
+      });
+    });
+});
 }
 
 

@@ -17,15 +17,15 @@ const Profile = (props) => {
 
     useEffect(() => {
         const userRef = firestore.collection('NewUsers').doc(firebase.auth().currentUser.email);
-        
+
         const observer = userRef.onSnapshot(docSnapshot => {
-            
+
             const data = docSnapshot.data();
-            
+
             setUserName(data["Name"]);
             setUserAge(data["Age"]);
             setUserInterests(data["Interests"]);
-            
+
         })
     }, [])
     return (
@@ -39,8 +39,8 @@ const Profile = (props) => {
             <Text style={styles.item}>
                 Interests: {userInterests}
             </Text>
-    
-        
+
+
             <Button style = {styles.button}
                 title = "Update Profile"
                 onPress = {() => props.navigation.navigate('Update Profile')}

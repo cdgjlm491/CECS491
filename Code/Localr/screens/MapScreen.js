@@ -7,6 +7,11 @@ import CustomCallout from '../components/CustomCallout.js';
 import geohash from "ngeohash";
 import { useIsFocused } from '@react-navigation/native';
 import 'firebase/firestore';
+import * as geofirestore from 'geofirestore';
+import * as firebase from 'firebase'
+import { getDistance } from 'geolib';
+import * as Device from 'expo-device';
+
 //this is required for a hack that fixes duplicate keys in the markers
 import 'react-native-get-random-values'
 import { v4 as uuidv4 } from 'uuid';
@@ -14,27 +19,32 @@ import { v4 as uuidv4 } from 'uuid';
 
 const MapScreen = (props) => {
 
+  //region state, holds the current region of the map
   const [region, setRegion] = useState({
     latitude: 33.7701,
     longitude: -118.1937,
     latitudeDelta: 0.1,
-    longitudeDelta: 0.1});
+    longitudeDelta: 0.1
+  });
 
-  //notes for myself
+  //notes for Austin
 
   //add a state that tracks if a marker is selected, if one is selected do no run the setmarkerlist on region change complete?
   //if the region changes enough however, deselect the marker and update the marker list?
   //the isGesture event may be helpful, but will only work on deployed apps
-  //setup geofirejs
   //THERE IS NO NEED TO PULL MARKERS WHEN ZOOMING IN!
+  //remove hard coded strings and create constants
 
 
+  //map reference
   const mapRef = useRef(null)
   const [errorMsg, setErrorMsg] = useState(null);
 
+  //returns true if the component is in focus
   const isFocused = useIsFocused();
 
 
+  //topic state that contains topics to show to the user
   const [topics, setTopics] = useState([
     'business',
     'entertainment',
@@ -46,9 +56,11 @@ const MapScreen = (props) => {
     'travel'
   ])
 
+  //marker states, holds markers to display to the user
+  /*
   const [markerList, setMarkerList] = useState([{
-    'Headline': 'filler',
-    'Description': 'filler',
+    'Headline': 'Test',
+    'Description': 'Testing',
     'Url': 'filler',
     'Topic': 'filler',
     'Geohash': 'filler',
@@ -59,17 +71,19 @@ const MapScreen = (props) => {
     //'Longitude': 0.1,
     //},
   }]);
+*/
+  const [markerList, setMarkerList] = useState([]);
 
-  //updates markers when screen comes into focus
-
+  //updates the topics and markers when screen comes into focus
   useEffect(() => {
     if (isFocused) {
       getTopics().then(a => setTopics(a))
-      mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))
+      mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers))))
     }
   }, [isFocused]);
 
 
+  //trying to check for user location, not finished
   useEffect(() => {
     (async () => {
 
@@ -97,22 +111,28 @@ const MapScreen = (props) => {
           latitudeDelta: 0.1,
           longitudeDelta: 0.1
         })
+
       } catch {
-        console.log('getCurrentPositionAsync error')
-        setErrorMsg('Cant get current position')
-        //default region
+        console.log('getCurrentPositionAsync error, getting last position')
+        setErrorMsg('Cant get current position, getting last position')
+        let location = await Location.getLastKnownPositionAsync();
+       if(location) {
         setRegion({
-          latitude: 33.7701,
-          longitude: -118.1937,
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1
         })
+      }
       }
 
 
     })();
   }, []);
 
+  onRegionChange = (region) => {
+      setRegion(region)
+  }
 
   //attempting to get location view
   let view =
@@ -127,8 +147,8 @@ const MapScreen = (props) => {
         <MapView style={styles.map}
           provider={PROVIDER_GOOGLE}
           ref={mapRef}
-          //loadingEnabled={true}
-          region={region}
+          initialRegion={region}
+          onRegionChange={region => onRegionChange(region)}
           //onPanDrag={() => console.log('dragged map')}
           onMarkerPress={() => console.log('marker selected')}
           //might fix a bug but might be android only
@@ -139,18 +159,26 @@ const MapScreen = (props) => {
           //get boundries, then pull markers, then set markers
           onRegionChangeComplete={region => {
             console.log('region change complete');
-            setRegion(region)
+            //setRegion(region)
             //console.log(region)
-            //mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))
+            //Create expieremental option to enable this? Uses more database reads than the button.
+            //mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers))))
           }}
         >
 
-          {displayMarkers(markerList, props)}
+          {markerList}
 
         </MapView>
 
-        <Button title = 'Load Markers' onPress = {() => mapRef.current.getMapBoundaries().then(mapborder => pullMarkers(mapborder).then(markers => setMarkerList(markers)))}></Button>
-      {/*<Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>*/}
+        <Button title='Load Markers' onPress={() => {
+          //This is a hack to get this working on IOS, however if the user is clicked on a marker it will become unclicked
+          if(Device.osName != 'Android') {
+            setMarkerList([])
+          }
+          mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers))))
+          //mapRef.current.forceUpdate()
+          }}></Button>
+        {/*<Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>*/}
 
         {/*lat long info bubble*/}
         <View style={[styles.bubble, styles.latlng]}>
@@ -187,33 +215,41 @@ const getTopics = async () => {
 
 }
 
-const pullMarkers = async (mapborder) => {
-  //need to change database layout and then update this
+const getArticles = async (mapborder, region) => {
   //add try catch
   topics = await getTopics()
   articles = []
-  console.log('starting to pull markers')
-  const southWest = geohash.encode(mapborder.southWest.latitude, mapborder.southWest.longitude)
-  const northEast = geohash.encode(mapborder.northEast.latitude, mapborder.northEast.longitude)
-  const collectionName = "long-beach"
-  const db = Firebase.firestore();
-  const ref = db.collection(collectionName)
 
-  //THIS IS NOT WORKING, OOPS
-  //make this a compound query in the future to select topics, right now it pulls everything and then filters by topic later
-  ref.where("geohash", ">=", southWest).where("geohash", "<=", northEast)
+  const distancekm = getDistance(
+    { latitude: mapborder.southWest.latitude, longitude: mapborder.southWest.longitude },
+    { latitude: mapborder.northEast.latitude, longitude: mapborder.northEast.longitude }) / 1000
+
+  console.log('starting to pull markers')
+  const db = Firebase.firestore();
+
+  const gf = geofirestore.initializeApp(db);
+
+  //temp, loop throught the testing collections documents in the future.
+  const geocollection = gf.collection("Testing Collections").doc("long-beach").collection("Articles")
+
+  //get all docs near the current region
+  const query = geocollection.near({ center: new firebase.firestore.GeoPoint(region.latitude, region.longitude), radius: distancekm/2 });
+
   //add try catch
-  const snapshot = await ref.get();
+  const snapshot = await query.get();
 
   if (snapshot.empty) {
-    //Alert.alert('No matching documents.');
+    console.log('No matching documents.');
     //no articles in location, return empty array
     return [];
   }
   else {
     snapshot.forEach(doc => {
+      //FIGURE OUT HOW TO PULL ONLY NEEDED TOPICS
       if (topics.includes(doc.data().topic)) {
-        articles.push({ "Headline": doc.data().name, "Description": doc.data().summary, "Url": doc.data().url, "Topic": doc.data().topic, 'Geohash': doc.data().geohash, 'Publish Date': doc.data().datePublished, 'Org': doc.data().organization });
+        console.log(doc.data().coordinates.U)
+        //This can be optimized to not use geohash, use coordinates instead
+        articles.push({ "Headline": doc.data().name, "Description": doc.data().summary, "Url": doc.data().url, "Topic": doc.data().topic, 'Geohash': doc.data().g.geohash, 'Publish Date': doc.data().datePublished, 'Org': doc.data().organization });
         //console.log(doc.data().topic)
       }
     })
@@ -223,7 +259,7 @@ const pullMarkers = async (mapborder) => {
   }
 }
 
-const displayMarkers = (articles, props) => {
+const createMarkers = (articles) => {
   //business, crime, entertainment, health, politics, science & tech, sports, travel
   //Is there a better way to do this?
   var mapPins = {
@@ -239,24 +275,26 @@ const displayMarkers = (articles, props) => {
 
   markerList = []
   markerList = articles.map((article) =>
-
     <Marker
-      key={uuidv4()}
+      key={String(article.Geohash) + article.Headline + String(uuidv4())}
       coordinate={{ latitude: geohash.decode(article.Geohash).latitude, longitude: geohash.decode(article.Geohash).longitude }}
       title={article.Headline}
       description={article.Description}
-      image={mapPins[article.Topic]}
-      tracksViewChanges={false}
+      //image={mapPins[article.Topic]}
+      //image={require('../assets/images/sports_s.png')}
+      //tracksInfoWindowChanges = {true}
+      tracksViewChanges={true}
     >
-      <Callout
-        alphaHitTest
-        tooltip
-        onPress={() => props.navigation.navigate("Article", article)}
-      >
-        <CustomCallout>
-          <Text>{article.Headline}</Text>
-        </CustomCallout>
-      </Callout>
+    <Callout
+      alphaHitTest
+      tooltip
+      onPress={() => props.navigation.navigate("Article", article)}
+    >
+      <CustomCallout>
+        <Text>{article.Headline}</Text>
+      </CustomCallout>
+    </Callout>
+
     </Marker>);
   //console.log(markerList)
   return (

@@ -5,7 +5,7 @@ import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import AuthNavigator from './navigation/AuthNavigator'
 import * as Permissions from 'expo-permissions';
-import { AppearanceProvider } from 'react-native-appearance';
+//import { AppearanceProvider } from 'react-native-appearance';
 
 LogBox.ignoreLogs(['Setting a timer'])
 
@@ -42,9 +42,9 @@ export default function App(props) {
     return null;
   } else {
     return (
-      <AppearanceProvider>
+      //<AppearanceProvider>
       <AuthNavigator/>
-      </AppearanceProvider>
+      //</AppearanceProvider>
     );
   }
 }
