@@ -14,10 +14,17 @@ import { getDistance } from 'geolib';
 import * as Device from 'expo-device';
 import MapStyle from '../components/MapStyle'
 import theme from '../components/Theme'
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import Geocoder from 'react-native-geocoding';
 
 //this is required for a hack that fixes duplicate keys in the markers
 import 'react-native-get-random-values'
 import { v4 as uuidv4 } from 'uuid';
+import {
+  GOOGLE_PLACES_API
+} 
+from 'react-native-dotenv'
+Geocoder.init(GOOGLE_PLACES_API, {language: 'en'})
 
 const MapScreen = (props) => {
   //region state, holds the current region of the map
@@ -27,6 +34,7 @@ const MapScreen = (props) => {
     latitudeDelta: 0.1,
     longitudeDelta: 0.1
   });
+  const [city, setCity] = useState("");
 
   //notes for Austin
 
@@ -40,7 +48,9 @@ const MapScreen = (props) => {
   //map reference
   const mapRef = useRef(null)
   const [errorMsg, setErrorMsg] = useState(null);
+
   const initialRender = useRef(true)
+
 
   //returns true if the component is in focus
   const isFocused = useIsFocused();
@@ -71,6 +81,7 @@ const MapScreen = (props) => {
       if (Device.osName != 'Android') {
         setMarkerList([])
       }
+
       mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers, props))))
     }
     else {
@@ -133,6 +144,7 @@ const MapScreen = (props) => {
     <ThemeProvider theme={theme}>
     <View style={styles.container}>
       <View style={styles.container}>
+    
         <MapView style={styles.map}
           provider={PROVIDER_GOOGLE}
           ref={mapRef}
@@ -179,6 +191,43 @@ const MapScreen = (props) => {
           </Text>
         </View>
       </View>
+    <View style={styles.container}>
+      {view}
+      <View style={styles.searchbar}>
+        <GooglePlacesAutocomplete
+          placeholder='Search'
+                
+          onPress={(data, details = null) => {
+                            Geocoder.from(data['description'])
+                            .then(json => {
+                              var address = json.results[0].address_components;
+                              for (var i = 0; i < address.length; i++) {
+                                if (address[i]["types"].length == 2 && address[i]["types"][0] === "locality" && address[i]["types"][1] === "political") {
+                                  setCity(address[i]["long_name"]);
+                                  break;
+                                }
+                              }
+                              //Query the datab
+                              var location = json.results[0].geometry.location;
+                              const newRegion = {
+                                latitude: location['lat'],
+                                longitude: location['lng'],
+                                latitudeDelta: 0.1,
+                                longitudeDelta: 0.1,
+                              }
+                              console.log("Update region");
+                              console.log(newRegion);
+                              setRegion(newRegion);
+
+                            })
+                            .catch(error => console.warn(error));
+                }}
+                query={{
+                    key: GOOGLE_PLACES_API,
+                    language: 'en',
+                }}
+            />
+    </View>
       <View style={styles.mapDrawerOverlay} />
     </View>
     </ThemeProvider>
@@ -301,7 +350,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
-
+  searchbar: {
+    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    height: 100,
+    top: 60,
+    left: 0,
+    width: '100%',
+  },
   map: {
     position: 'absolute',
     //top: 40,

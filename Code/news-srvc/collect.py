@@ -16,7 +16,7 @@ from newspaper import Article, ArticleException
 subscription_key = "6b62615906f84b91b3cceb985b4011e6"
 search_term = "Microsoft"
 search_url = "https://api.cognitive.microsoft.com/bing/v7.0/news/search"
-
+cities = ["long-beach","lakewood","cerritos", "bellflower"]
 
 def webscrape(city, key, url):
     """ Creates a request for news article that contain a city, gets the 
@@ -71,6 +71,11 @@ def webscrape(city, key, url):
         item["city"] = city
         # remove other unneccessary tags
         money = dict((k, item[k]) for k in important_tags)
+        #remove unnecessary symbols in the headline and summaries
+        if ("<b>" in item['name']):
+          item['name'] = item["name"].replace('<b>','')
+          item['name'] = item["name"].replace('</b>','')
+
         payload.append(money)
                 
     return payload
@@ -87,7 +92,7 @@ def gen_id(news_item) :
     ---
     unique id as a string
     '''
-    return news_item["geohash"] + '_' + news_item["datePublished"]
+    return news_item["datePublished"] + '_' + news_item["geohash"]
     
 def locate(news_lst, city) :
     '''Temporary geohasher assigns random locations based on city parameter; also 
@@ -134,12 +139,14 @@ def locate(news_lst, city) :
     rand.seed()
     #
     for item in news_lst :
-        lat = min_lat + (max_lat-min_lat)*rand.random()
+        lati = min_lat + (max_lat-min_lat)*rand.random()
         lon = min_lon + (max_lon-min_lon)*rand.random()
-        ghash = geohash.encode(lat, lon, 7)
+        ghash = geohash.encode(lati, lon, 7)
+        loncoord = float(geohash.decode(ghash).lon)
+        latcoord = float(geohash.decode(ghash).lat)
         item["geohash"] = ghash
         item["id"] = gen_id(item)
-    
+        item["coordinates"] = firestore.GeoPoint(latcoord, loncoord)
     return news_lst
 #===============================================================================
 
@@ -154,34 +161,42 @@ vectorizer = joblib.load("vectorizer_02.joblib")
 
 @app.route('/')
 def collect() :
-    # scrape
-    news = webscrape("lakewood", subscription_key, search_url)
-    # geohash and id
-    news_lst = locate(news,"lakewood")
-    # label
-    ln = LabelNews(labeler, model, news_lst, vectorizer)
-    news_lst = ln.assign_topics()
-    #
-    # Project ID determined by GCLOUD_PROJECT environment variable 
-    print("writing to Firestore ...\n")
-    db = firestore.Client()    
-    for item in news_lst :
-        doc_ref = db.collection(item["city"]).document(item["id"])
-        doc_ref.set({
-            "datePublished" : item["datePublished"],
-            "name" : item["name"],
-            "organization" : item["organization"],
-            "summary" : item["summary"],
-            "url" : item["url"],
-            "geohash" : item["geohash"],
-            "topic" : item["topic"],
-        })    
-    #
+    '''docstring'''
     text = []
-    for i in news_lst :
-        text.append(i["topic"] + " : " + i["name"])
+    #
+    for c in cities:
+        # scrape
+        news = webscrape(c, subscription_key, search_url)
+        # geohash and id
+        news_lst = locate(news,c)
+        # label
+        ln = LabelNews(labeler, model, news_lst, vectorizer)
+        news_lst = ln.assign_topics()
+        #
+        # Project ID determined by GCLOUD_PROJECT environment variable 
+        print("writing to Firestore ...\n")
+        db = firestore.Client()    
+        for item in news_lst :
+            #doc_ref = db.collection(item["city"]).document(item["id"])
+            doc_ref = db.collection("Testing Collections").document(c).collection("Articles").document(item["id"])
+            doc_ref.set({
+                "datePublished" : item["datePublished"],
+                "name" : item["name"],
+                "organization" : item["organization"],
+                "summary" : item["summary"],
+                "url" : item["url"],
+                "coordinates" : item["coordinates"],
+                "topic" : item["topic"],
+                "g" : {
+                    "geohash" : item["geohash"],
+                    "geopoint" : item["coordinates"]
+                }
+            })
+        #    
+        for i in news_lst :
+            text.append(i["topic"] + " : " + i["name"])
+    #    
     text = ";_____".join(text)
-    
     name = os.environ.get('NAME', text)
     return "{}".format(name)
 
