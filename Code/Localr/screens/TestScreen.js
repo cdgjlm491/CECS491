@@ -1,269 +1,92 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Alert, Linking, Button, Text } from 'react-native';
-import { CheckBox } from 'react-native-elements'
+import { View, StyleSheet, Alert, Button, Text, SafeAreaView, FlatList, StatusBar, Linking } from 'react-native';
+import { CheckBox, ListItem } from 'react-native-elements'
 import Firebase from '../components/Firebase'
+import { useIsFocused } from '@react-navigation/native';
+import geohash from "ngeohash";
+import * as firebase from 'firebase'
 
 
-const TestScreen = (props) => {
+const TestScreen = () => {
 
-  const topicArray = {
-  'business': false,
-  'entertainment': false,
-  'health': false,
-  'politics': false,
-  'crime': false,
-  'science & tech': false,
-  'sports': false,
-  'travel': false}
 
-  const [filterList, setFilterList] = useState(
-    {  'business': false,
-    'entertainment': false,
-    'health': false,
-    'politics': false,
-    'crime': false,
-    'science & tech': false,
-    'sports': false,
-    'travel': false});
+   const [articles, setArticles] = useState([])
+  const isFocused = useIsFocused();
 
-  const [business, setBusiness] = useState(false);
-  const [entertainment, setEntertainment] = useState(false);
-  const [health, setHealth] = useState(false);
-  const [politics, setPolitics] = useState(false);
-  const [crime, setCrime] = useState(false);
-  const [science, setScience] = useState(false);
-  const [sports, setSports] = useState(false);
-  const [travel, setTravel] = useState(false);
-
-  /*
   useEffect(() => {
-    console.log('use effect')
-    // Runs after the first render() lifecycle
-
-    getTopics().then(x => {
-      console.log(x)
-  x.forEach(element => {
-      console.log(element)
-      topicArray[element] = true
-    })
-    console.log(topicArray)
-    setFilterList(topicArray)
-    })
-  }, []);
-  */
-
- const update = async () => {
-  topiclist = []
-  const email =  Firebase.auth().currentUser.email;
-
-  if(politics){
-      topiclist.push('politics')
-  }
-  if(business){
-    topiclist.push('business')
-  }
-  if(crime){
-    topiclist.push('crime')
-  }
-  if(entertainment){
-    topiclist.push('entertainment')
-  }
-  if(health){
-    topiclist.push('health')
-  }
-  if(sports){
-    topiclist.push('sports')
-  }
-  if(travel){
-    topiclist.push('travel')
-  }
-  if(science){
-    topiclist.push('science & tech')
-  }
-  console.log(topiclist)
-
-
-  const ref = await Firebase.firestore().collection('NewUsers').doc(email)
-  const res = await ref.update({Interests : topiclist})
-}
-
- useEffect(() => {
-  console.log('use effect')
-  // Runs after the first render() lifecycle
-
-  getTopics().then(x => {
-    console.log(x)
-x.forEach(element => {
-  switch(element) {
-    case 'business':
-      setBusiness(true)
-      break;
-    case 'entertainment':
-      setEntertainment(true)
-      break;
-    case 'health':
-      setHealth(true)
-      break;
-    case 'politics':
-      setPolitics(true)
-      break;
-    case 'crime':
-      setCrime(true)
-      break;
-    case 'science & tech':
-      setScience(true)
-      break;
-    case 'sports':
-      setSports(true)
-      break;
-    case 'travel':
-      setTravel(true)
-      break;
-  default:
-      console.log('error')
-  }
-  })
-  })
-}, []);
+    console.log('useEffect')
+    if (isFocused) {
+    }
+  }, [isFocused])
 
   return (
-    <View style={styles.contentContainer}>
-          <CheckBox
-            title = 'Politics'
-            checked={politics}
-            onPress={() => setPolitics(!politics)}
-            style={styles.checkbox}
-          />
-          <CheckBox
-            title = 'Business'
-            checked={business}
-            onPress={() => setBusiness(!business)}
-            style={styles.checkbox}
-          />
-          <CheckBox
-            title = 'Crime'
-            checked={crime}
-            onPress={() => setCrime(!crime)}
-            style={styles.checkbox}
-          />
-          <CheckBox
-            title = 'Health'
-            checked={health}
-            onPress={() => setHealth(!health)}
-            style={styles.checkbox}
-          />
-          <CheckBox
-            title = 'Entertainment'
-            checked={entertainment}
-            onPress={() => setEntertainment(!entertainment)}
-            style={styles.checkbox}
-          />
-          <CheckBox
-            title = 'Science and tech'
-            checked={science}
-            onPress={() => setScience(!science)}
-            style={styles.checkbox}
-          />
-          <CheckBox
-            title = 'Travel'
-            checked={travel}
-            onPress={() => setTravel(!travel)}
-            style={styles.checkbox}
-          />
-          <CheckBox
-            title = 'Sports'
-            checked={sports}
-            onPress={() => setSports(!sports)}
-            style={styles.checkbox}
-          />
-        <Button title='Update' onPress = {() => update()}></Button>
-      </View>
-  );
-
-/*
-    const checkButtons = () => {
-        var buttons = [];
-        for(var name in filterList) {
-              buttons.push(
-              <CheckBox
-              key={Math.random()}
-              title= {name}
-              checked={filterList[name]}
-              onPress={() =>  {setFilterList(changeCheck(name))}}
-              />
-            )
-        }
-        return buttons;
-    }
-
-
-    const changeCheck = (name) => {
-      filterList[name] = !filterList[name]
-      console.log(filterList)
-      return filterList
-    }
-
-    return (
-  <View style={styles.contentContainer}>
-    {checkButtons()}
-      <Button title='Update'></Button>
+    <View style={styles.container}>
+      <Button
+      title='test'
+      //onPress = {() => test()}
+      />
+            <Button
+      title='test2'
+      //onPress = {() => test2()}
+      />
     </View>
-);
-*/
-
-}
-
-
-
-
-const getTopics = async () => {
-  const email =  Firebase.auth().currentUser.email;
-  const collectionName = "NewUsers"
-  const db = Firebase.firestore();
-  const ref = db.collection(collectionName).doc(email)
-  const doc = await ref.get();
-
-  if (!doc.exists) {
-    console.log('No such document!');
-  } else {
-    console.log('Document data:', doc.data());
-    return doc.data().Interests
-  }
-
+  );
 }
 export default TestScreen
+/*
+const test = () => {
+  const db = Firebase.firestore();
+  db.collection("Testing Collections").doc('long-beach').collection('Articles').get().then(function(querySnapshot) {
+    querySnapshot.forEach(function(doc) {
+        console.log(doc.data().geohash)
+        var latlong = geohash.decode(doc.data().geohash)
+        console.log(latlong)
+        doc.ref.update({
+          coordinates: new firebase.firestore.GeoPoint(latlong.latitude, latlong.longitude),
+          g: {
+            geohash: doc.data().geohash,
+            geopoint: new firebase.firestore.GeoPoint(latlong.latitude, latlong.longitude)
+          }
+      });
+    });
+});
+}
 
+const test2 = () => {
+  const db = Firebase.firestore();
+  db.collection("Testing Collections").doc('long-beach').collection('Articles').get().then(function(querySnapshot) {
+    querySnapshot.forEach(function(doc) {
+        //console.log(doc.data().geohash)
+        var latlong = geohash.decode(doc.data().geohash)
+        //console.log(latlong)
+        doc.ref.update({
+          geohash: firebase.firestore.FieldValue.delete()
+      });
+    });
+});
+}
+*/
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    contentContainer: {
-        paddingTop: 15
-    },
-    button: {
-        marginTop: 10
-    },
-    input: {
-        marginTop: 10
-    },
-    image: {
-        height: 200,
-        width: 200,
-        resizeMode: 'contain',
-    },
-    logoContainer: {
-        alignItems: 'center',
-    },
-    icon: {
-        marginRight: 10
-    },
-    mapDrawerOverlay: {
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        opacity: 0.0,
-        height: "100%",
-        width: 25,
-      },
+  container: {
+    flex: 1,
+    //USE THIS?, IT GETS THE DEVICES STATUS BAR HEIGHT?
+    marginTop: StatusBar.currentHeight || 0,
+    backgroundColor: '#555B6E',
+  },
+  item: {
+    backgroundColor: '#E5E1EE',
+    padding: 5,
+    marginVertical: 4,
+    marginHorizontal: 4,
+  },
+  title: {
+    fontSize: 32,
+  },
+  litem: {
+    //backgroundColor: '#555B6E',
+  },
+  litemt: {
+    color: '#555B6E',
+  },
 });

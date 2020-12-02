@@ -8,10 +8,10 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <Text>Welcome {user.uid}</Text>
-      <Text>This is your UID.</Text>
-        <Text>This is also a temporary Home Screen</Text>
-        <Text>Use the drawer on the left!</Text>
+      <Text style={styles.innerText}>Welcome {user.uid}</Text>
+      <Text style={styles.innerText}>This is your UID.</Text>
+        <Text style={styles.innerText}>This is also a temporary Home Screen</Text>
+        <Text style={styles.innerText}>Use the drawer on the left!</Text>
         <Button
             title = "Sign out"
             onPress={logOut}>
@@ -33,5 +33,10 @@ const styles = StyleSheet.create({
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
+      backgroundColor: 'rgb(85, 91, 110)'
+
     },
+    innerText: {
+      color: 'rgb(252, 252, 255)'
+    }
   });
