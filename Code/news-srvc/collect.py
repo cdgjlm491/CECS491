@@ -92,7 +92,7 @@ def gen_id(news_item) :
     ---
     unique id as a string
     '''
-    return news_item["geohash"] + '_' + news_item["datePublished"]
+    return news_item["datePublished"] + '_' + news_item["geohash"]
     
 def locate(news_lst, city) :
     '''Temporary geohasher assigns random locations based on city parameter; also 
@@ -146,7 +146,7 @@ def locate(news_lst, city) :
         latcoord = float(geohash.decode(ghash).lat)
         item["geohash"] = ghash
         item["id"] = gen_id(item)
-        item["location"] = firestore.GeoPoint(latcoord, loncoord)
+        item["coordinates"] = firestore.GeoPoint(latcoord, loncoord)
     return news_lst
 #===============================================================================
 
@@ -185,9 +185,12 @@ def collect() :
                 "organization" : item["organization"],
                 "summary" : item["summary"],
                 "url" : item["url"],
-                "geohash" : item["geohash"],
-                "location" : item["location"],
+                "coordinates" : item["coordinates"],
                 "topic" : item["topic"],
+                "g" : {
+                    "geohash" : item["geohash"],
+                    "geopoint" : item["coordinates"]
+                }
             })
         #    
         for i in news_lst :
