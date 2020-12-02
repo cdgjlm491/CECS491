@@ -1,24 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { View, StyleSheet, Text, Button, Alert } from 'react-native'
+import { View, StyleSheet, Text } from 'react-native'
+import { Button, ThemeProvider } from 'react-native-elements'
 import Firebase from '../components/Firebase'
 import * as Location from 'expo-location';
-import MapView, { Marker, PROVIDER_GOOGLE, Callout, MAP_TYPES } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
 import CustomCallout from '../components/CustomCallout.js';
 import geohash from "ngeohash";
 import { useIsFocused } from '@react-navigation/native';
 import 'firebase/firestore';
 import * as geofirestore from 'geofirestore';
-import * as firebase from 'firebase'
+import * as firebase from 'firebase';
 import { getDistance } from 'geolib';
 import * as Device from 'expo-device';
+import MapStyle from '../components/MapStyle'
+import theme from '../components/Theme'
 
 //this is required for a hack that fixes duplicate keys in the markers
 import 'react-native-get-random-values'
 import { v4 as uuidv4 } from 'uuid';
 
-
 const MapScreen = (props) => {
-
   //region state, holds the current region of the map
   const [region, setRegion] = useState({
     latitude: 33.7701,
@@ -39,6 +40,7 @@ const MapScreen = (props) => {
   //map reference
   const mapRef = useRef(null)
   const [errorMsg, setErrorMsg] = useState(null);
+  const initialRender = useRef(true)
 
   //returns true if the component is in focus
   const isFocused = useIsFocused();
@@ -56,39 +58,23 @@ const MapScreen = (props) => {
     'travel'
   ])
 
-  //marker states, holds markers to display to the user
-  /*
-  const [markerList, setMarkerList] = useState([{
-    'Headline': 'Test',
-    'Description': 'Testing',
-    'Url': 'filler',
-    'Topic': 'filler',
-    'Geohash': 'filler',
-    'Publish Date': 'filler',
-    'Org': 'filler'
-    //'Coordinates': {
-    //'Latitude': 0.1,
-    //'Longitude': 0.1,
-    //},
-  }]);
-*/
   const [markerList, setMarkerList] = useState([]);
+
 
   //updates the topics and markers when screen comes into focus
   useEffect(() => {
-    if (isFocused) {
-      getTopics().then(a => setTopics(a))
+    console.log('use effect focus')
+    //check if focused and not initial render
+    if (isFocused && !initialRender.current ) {
+     getTopics().then(a => setTopics(a))
+     //IOS hack
       if (Device.osName != 'Android') {
-        test = {
-          latitude: region.latitude + .00001,
-          longitude: region.longitude + .00001,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1
-        }
-        mapRef.current.animateToRegion(test)
         setMarkerList([])
       }
       mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers, props))))
+    }
+    else {
+      initialRender.current = false
     }
   }, [isFocused]);
 
@@ -143,25 +129,21 @@ const MapScreen = (props) => {
     setRegion(region)
   }
 
-  //attempting to get location view
-  let view =
-    <View style={styles.center}>
-      <Text>Getting Location..</Text>
-    </View>;
-
-  //location was found view
-  if (region) {
-    view =
+  return (
+    <ThemeProvider theme={theme}>
+    <View style={styles.container}>
       <View style={styles.container}>
         <MapView style={styles.map}
           provider={PROVIDER_GOOGLE}
           ref={mapRef}
+          customMapStyle={MapStyle}
           initialRegion={region}
           onRegionChange={region => onRegionChange(region)}
           //onPanDrag={() => console.log('dragged map')}
           onMarkerPress={() => console.log('marker selected')}
           //might fix a bug but might be android only
           moveOnMarkerPress={false}
+          onMapReady={() => mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers, props))))}
 
           //PROBLEM: when you select a marker and move the map the markers are refreshed causing the marker to no longer be selected
           //isGesture can prevent this if it works when deployed to the appstore, currently it is returning undefined.
@@ -179,22 +161,15 @@ const MapScreen = (props) => {
 
         </MapView>
 
-        <Button title='Load Markers' onPress={() => {
+        <Button title='Load Markers'
+        onPress={() => {
           //This is a hack to get this working on IOS, however if the user is clicked on a marker it will become unclicked
           if (Device.osName != 'Android') {
-            test = {
-              latitude: region.latitude + .00001,
-              longitude: region.longitude + .00001,
-              latitudeDelta: 0.1,
-              longitudeDelta: 0.1
-            }
-            mapRef.current.animateToRegion(test)
             setMarkerList([])
           }
           mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers, props))))
-          //mapRef.current.forceUpdate()
-        }}></Button>
-        {/*<Button title = 'Remove Markers?' onPress = {() => setMarkerList([])}></Button>*/}
+        }}>
+        </Button>
 
         {/*lat long info bubble*/}
         <View style={[styles.bubble, styles.latlng]}>
@@ -204,21 +179,17 @@ const MapScreen = (props) => {
           </Text>
         </View>
       </View>
-  }
-
-  return (
-    <View style={styles.container}>
-      {view}
       <View style={styles.mapDrawerOverlay} />
     </View>
+    </ThemeProvider>
   );
 }
 
 const getTopics = async () => {
-  const email = Firebase.auth().currentUser.email;
-  const collectionName = "NewUsers"
+  const uid = Firebase.auth().currentUser.uid;
+  const collectionName = "users"
   const db = Firebase.firestore();
-  const ref = db.collection(collectionName).doc(email)
+  const ref = db.collection(collectionName).doc(uid)
   //add try catch
   const doc = await ref.get();
 
@@ -235,21 +206,23 @@ const getArticles = async (mapborder, region) => {
   //add try catch
   topics = await getTopics()
   articles = []
-
+  console.log(mapborder)
   const distancekm = getDistance(
     { latitude: mapborder.southWest.latitude, longitude: mapborder.southWest.longitude },
     { latitude: mapborder.northEast.latitude, longitude: mapborder.northEast.longitude }) / 1000
 
+  console.log(distancekm)
   console.log('starting to pull markers')
   const db = Firebase.firestore();
 
   const gf = geofirestore.initializeApp(db);
 
   //temp, loop throught the testing collections documents in the future.
-  const geocollection = gf.collection("Testing Collections").doc("long-beach").collection("Articles")
+  //rename to articles
+  const geocollection = gf.collectionGroup('Articles')
 
   //get all docs near the current region
-  const query = geocollection.near({ center: new firebase.firestore.GeoPoint(region.latitude, region.longitude), radius: distancekm / 2 });
+  const query = geocollection.near({ center: new firebase.firestore.GeoPoint(region.latitude, region.longitude), radius: distancekm / 2.5 });
 
   //add try catch
   const snapshot = await query.get();
@@ -265,7 +238,7 @@ const getArticles = async (mapborder, region) => {
       if (topics.includes(doc.data().topic)) {
         console.log(doc.data().coordinates.U)
         //This can be optimized to not use geohash, use coordinates instead
-        articles.push({ "Headline": doc.data().name, "Description": doc.data().summary, "Url": doc.data().url, "Topic": doc.data().topic, 'Geohash': doc.data().g.geohash, 'Publish Date': doc.data().datePublished, 'Org': doc.data().organization });
+        articles.push({ "headline": doc.data().name, "description": doc.data().summary, "url": doc.data().url, "topic": doc.data().topic, 'geohash': doc.data().g.geohash, 'datePublished': doc.data().datePublished, 'organization': doc.data().organization });
         //console.log(doc.data().topic)
       }
     })
@@ -292,14 +265,14 @@ const createMarkers = (articles, props) => {
   markerList = []
   markerList = articles.map((article) =>
     <Marker
-      key={String(article.Geohash) + article.Headline + String(uuidv4())}
-      coordinate={{ latitude: geohash.decode(article.Geohash).latitude, longitude: geohash.decode(article.Geohash).longitude }}
-      title={article.Headline}
-      description={article.Description}
-      //image={mapPins[article.Topic]}
+      key={String(article.geohash) + article.headline + String(uuidv4())}
+      coordinate={{ latitude: geohash.decode(article.geohash).latitude, longitude: geohash.decode(article.geohash).longitude }}
+      title={article.headline}
+      description={article.description}
+      image={mapPins[article.topic]}
       //image={require('../assets/images/sports_s.png')}
       //tracksInfoWindowChanges = {true}
-      tracksViewChanges={true}
+      //tracksViewChanges={false}
     >
       <Callout
         alphaHitTest
@@ -307,7 +280,7 @@ const createMarkers = (articles, props) => {
         onPress={() => props.navigation.navigate("Article", article)}
       >
         <CustomCallout>
-          <Text>{article.Headline}</Text>
+          <Text>{article.headline}</Text>
         </CustomCallout>
       </Callout>
 

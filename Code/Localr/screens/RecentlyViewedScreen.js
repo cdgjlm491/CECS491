@@ -1,50 +1,61 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Alert, Button, Text, SafeAreaView, FlatList, StatusBar, Linking } from 'react-native';
-import { CheckBox, ListItem } from 'react-native-elements'
+import { View, StyleSheet, FlatList, StatusBar, Linking } from 'react-native';
+import { ListItem, ThemeProvider, Text } from 'react-native-elements'
 import Firebase from '../components/Firebase'
 import { useIsFocused } from '@react-navigation/native';
-
-//this is required for a hack that fixes duplicate keys in the markers
-import 'react-native-get-random-values'
-import { v4 as uuidv4 } from 'uuid';
+import theme from '../components/Theme'
 
 const RecentlyViewedScreen = () => {
 
   const [articles, setArticles] = useState([])
   const isFocused = useIsFocused();
 
+  //use snapshot instead?
+/*   useEffect(() => {
+    console.log('useEffect')
+    var alist = []
+    const userRef = Firebase.firestore().collection('users').doc(Firebase.auth().currentUser.uid).collection('recentlyViewed');
+    userRef.onSnapshot(docSnapshot => {
+      docSnapshot.forEach(doc => {
+        console.log(doc.data())
+      alist.push(doc.data())
+      })
+      setArticles(alist)
+  })
+  }, [])
+ */
+
   useEffect(() => {
     console.log('useEffect')
     if (isFocused) {
-    test().then(x => setArticles(x))
+      getArticles().then(articles => setArticles(articles))
     }
   }, [isFocused])
 
   return (
+    <ThemeProvider theme={theme}>
     <View style={styles.container}>
       <FlatList
-      inverted
         data={articles}
         renderItem={({ item }) => (
           <ListItem style={styles.item}
-          title={item.Headline}
-          subtitle={item.Url}
-          containerStyle={styles.litem}
-          textStyle={styles.litemt}
-          onPress={() => Linking.openURL(item.Url)}/>
+          title={item.headline}
+          subtitle={item.url}
+          onPress={() => Linking.openURL(item.url)}/>
         )}
-        keyExtractor={item => String(item.Geohash) + item.Headline}
+        keyExtractor={item => String(item.geohash) + item.headline}
       />
     </View>
+    </ThemeProvider>
   );
 }
 export default RecentlyViewedScreen
 
-const test = async () => {
-  const email = Firebase.auth().currentUser.email;
-  const collectionName = "NewUsers"
+const getArticles = async () => {
+  const uid = Firebase.auth().currentUser.uid;
+  const collectionName = "users"
   const db = Firebase.firestore();
-  const ref = db.collection(collectionName).doc(email).collection('Recently')
+  const ref = db.collection(collectionName).doc(uid).collection('recentlyViewed').orderBy('timeViewed', 'desc')
   var alist = []
   //add try catch
   await ref.get().then(querySnapshot => {
@@ -62,21 +73,12 @@ const styles = StyleSheet.create({
     flex: 1,
     //USE THIS?, IT GETS THE DEVICES STATUS BAR HEIGHT?
     marginTop: StatusBar.currentHeight || 0,
-    backgroundColor: '#555B6E',
+    backgroundColor: theme.colors.black,
   },
   item: {
-    backgroundColor: '#E5E1EE',
+    //backgroundColor: '#E5E1EE',
     padding: 5,
     marginVertical: 4,
     marginHorizontal: 4,
-  },
-  title: {
-    fontSize: 32,
-  },
-  litem: {
-    //backgroundColor: '#555B6E',
-  },
-  litemt: {
-    color: '#555B6E',
   },
 });

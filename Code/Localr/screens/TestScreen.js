@@ -6,9 +6,11 @@ import { useIsFocused } from '@react-navigation/native';
 import geohash from "ngeohash";
 import * as firebase from 'firebase'
 
+
 const TestScreen = () => {
 
-  const [articles, setArticles] = useState([])
+
+   const [articles, setArticles] = useState([])
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -21,15 +23,17 @@ const TestScreen = () => {
     <View style={styles.container}>
       <Button
       title='test'
-      onPress = {() => test()}></Button>
+      //onPress = {() => test()}
+      />
             <Button
       title='test2'
-      onPress = {() => test2()}></Button>
+      //onPress = {() => test2()}
+      />
     </View>
   );
 }
 export default TestScreen
-
+/*
 const test = () => {
   const db = Firebase.firestore();
   db.collection("Testing Collections").doc('long-beach').collection('Articles').get().then(function(querySnapshot) {
@@ -61,7 +65,7 @@ const test2 = () => {
     });
 });
 }
-
+*/
 
 const styles = StyleSheet.create({
   container: {

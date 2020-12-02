@@ -3,18 +3,10 @@ import { View, StyleSheet, Button } from 'react-native';
 import { CheckBox, ThemeProvider } from 'react-native-elements'
 import Firebase from '../components/Firebase'
 import 'react-native-get-random-values'
-import { v4 as uuidv4 } from 'uuid';
+import theme from '../components/Theme'
 
 
 //todo: put checkboxes into flatlist
-
-
-const myTheme = {
-  CheckBox: {
-    uncheckedColor: '#17AAEA',
-    checkedColor: '#F05D5E',
-  },
-};
 
 const FilterScreen = () => {
 
@@ -25,10 +17,11 @@ const FilterScreen = () => {
 
 
   const getTopics = async () => {
-    const email = Firebase.auth().currentUser.email;
-    const collectionName = "NewUsers"
+    const uid = Firebase.auth().currentUser.uid;
+    //console.log(Firebase.auth().currentUser.uid)
+    const collectionName = "users"
     const db = Firebase.firestore();
-    const ref = db.collection(collectionName).doc(email)
+    const ref = db.collection(collectionName).doc(uid)
 
     //add try catch
     const doc = await ref.get();
@@ -44,7 +37,7 @@ const FilterScreen = () => {
 
   const update = async () => {
     topiclist = []
-    const email = Firebase.auth().currentUser.email;
+    const uid = Firebase.auth().currentUser.uid;
     for (key in topics) {
       if (topics[key]) {
         topiclist.push(key.toString())
@@ -53,7 +46,7 @@ const FilterScreen = () => {
 
 
     //add try catch
-    const ref = await Firebase.firestore().collection('NewUsers').doc(email)
+    const ref = await Firebase.firestore().collection('users').doc(uid)
     const res = await ref.update({ Interests: topiclist })
   }
 
@@ -103,66 +96,50 @@ const FilterScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ThemeProvider theme={myTheme}>
+      <ThemeProvider theme={theme}>
         <CheckBox
-          containerStyle={styles.checkb}
-          textStyle={styles.checkt}
           title='Politics'
           checked={topics['politics']}
           onPress={() => updateTopics('politics')}
           style={styles.checkbox}
         />
         <CheckBox
-          containerStyle={styles.checkb}
-          textStyle={styles.checkt}
           title='Business'
           checked={topics['business']}
           onPress={() => updateTopics('business')}
           style={styles.checkbox}
         />
         <CheckBox
-          containerStyle={styles.checkb}
-          textStyle={styles.checkt}
           title='Crime'
           checked={topics['crime']}
           onPress={() => updateTopics('crime')}
           style={styles.checkbox}
         />
         <CheckBox
-          containerStyle={styles.checkb}
-          textStyle={styles.checkt}
           title='Health'
           checked={topics['health']}
           onPress={() => updateTopics('health')}
           style={styles.checkbox}
         />
         <CheckBox
-          containerStyle={styles.checkb}
-          textStyle={styles.checkt}
           title='Entertainment'
           checked={topics['entertainment']}
           onPress={() => updateTopics('entertainment')}
           style={styles.checkbox}
         />
         <CheckBox
-          containerStyle={styles.checkb}
-          textStyle={styles.checkt}
           title='Science and tech'
           checked={topics['science']}
           onPress={() => updateTopics('science')}
           style={styles.checkbox}
         />
         <CheckBox
-          containerStyle={styles.checkb}
-          textStyle={styles.checkt}
           title='Travel'
           checked={topics['travel']}
           onPress={() => updateTopics('travel')}
           style={styles.checkbox}
         />
         <CheckBox
-          containerStyle={styles.checkb}
-          textStyle={styles.checkt}
           title='Sports'
           checked={topics['sports']}
           onPress={() => updateTopics('sports')}
@@ -184,13 +161,6 @@ const styles = StyleSheet.create({
     flex: 1,
     //alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgb(85, 91, 110)'
+    backgroundColor: theme.colors.black
   },
-  checkb: {
-    backgroundColor: 'rgb(85, 91, 110)',
-    borderColor: 'rgb(23, 170, 234)'
-  },
-  checkt: {
-    color: 'rgb(252, 252, 255)',
-  }
 });

@@ -1,72 +1,65 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { View, StyleSheet, Text, TouchableOpacity, StatusBar } from 'react-native'
 import Firebase from '../components/Firebase'
-import * as firebase from "firebase"
-import {Button} from 'react-native-elements'
-import UpdateProfile from './UpdateProfileScreen';
-import Header from '../components/Header';
-
-var firestore = Firebase.firestore();
+import { ThemeProvider, Button } from 'react-native-elements'
+import theme from '../components/Theme'
 
 
 const Profile = (props) => {
     const [userName, setUserName] = React.useState("");
-    const [userAge, setUserAge] = React.useState(0);
-    const [userInterests, setUserInterests] = React.useState([]);
+    const [userDOB, setUserDOB] = React.useState(1);
 
     useEffect(() => {
-        const userRef = firestore.collection('NewUsers').doc(firebase.auth().currentUser.email);
-
-        const observer = userRef.onSnapshot(docSnapshot => {
-
+        const userRef = Firebase.firestore().collection('users').doc(Firebase.auth().currentUser.uid);
+            userRef.onSnapshot(docSnapshot => {
             const data = docSnapshot.data();
-
-            setUserName(data["Name"]);
-            setUserAge(data["Age"]);
-            setUserInterests(data["Interests"]);
+            console.log()
+            setUserName(data["name"]);
+            setUserDOB(data["dob"].toDate().toDateString());
 
         })
     }, [])
+
     return (
+        <ThemeProvider theme={theme}>
         <View style={styles.container}>
+            <View style={styles.inner}>
             <Text style={styles.item}>
                 Name: {userName}
             </Text>
             <Text style= {styles.item}>
-                Age: {userAge}
-            </Text>
-            <Text style={styles.item}>
-                Interests: {userInterests}
+                Date of birth: {userDOB}
             </Text>
 
-
-            <Button style = {styles.button}
+            <Button
                 title = "Update Profile"
                 onPress = {() => props.navigation.navigate('Update Profile')}
             />
       </View>
+      </View>
+      </ThemeProvider>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: theme.colors.black,
+    },
+    inner: {
+        height: '30%',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        marginTop: 15,
     },
     item: {
-        padding: 16,
-        marginTop: 25,
-        borderColor: '#bbb',
-        borderWidth: 2,
-        borderStyle: 'dashed',
+        padding: 5,
+        borderColor: theme.colors.primary,
+        borderWidth: 1,
         borderRadius: 10,
         fontWeight: 'bold',
-    },
-    button: {
-        paddingTop: 10,
-        margin: 50,
-        borderRadius: 20,
+        width: '100%',
+        color: theme.colors.white,
     }
 })
 

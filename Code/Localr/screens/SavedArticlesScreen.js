@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Alert, Button, Text, SafeAreaView, FlatList, StatusBar, Linking } from 'react-native';
-import { CheckBox, ListItem } from 'react-native-elements'
+import { View, StyleSheet,  FlatList, StatusBar, Linking } from 'react-native';
+import { ListItem, ThemeProvider } from 'react-native-elements'
 import Firebase from '../components/Firebase'
 import { useIsFocused } from '@react-navigation/native';
+import theme from '../components/Theme'
 
 
 const SavedArticlesScreen = () => {
@@ -13,35 +14,35 @@ const SavedArticlesScreen = () => {
   useEffect(() => {
     console.log('useEffect')
     if (isFocused) {
-    test().then(x => setArticles(x))
+      pullArticles().then(x => setArticles(x))
     }
   }, [isFocused])
 
   return (
-    <View style={styles.container}>
-      <FlatList
-      inverted
-        data={articles}
-        renderItem={({ item }) => (
-          <ListItem style={styles.item}
-          title={item.Headline}
-          subtitle={item.Url}
-          containerStyle={styles.litem}
-          textStyle={styles.litemt}
-          onPress={() => Linking.openURL(item.Url)}/>
-        )}
-        keyExtractor={item => item.Url}
-      />
-    </View>
+    <ThemeProvider theme={theme}>
+      <View style={styles.container}>
+        <FlatList
+          data={articles}
+          renderItem={({ item }) => (
+            <ListItem style={styles.item}
+              title={item.headline}
+              subtitle={item.url}
+              onPress={() => Linking.openURL(item.url)} />
+          )}
+          keyExtractor={item => item.url}
+        />
+      </View>
+    </ThemeProvider>
+
   );
 }
 export default SavedArticlesScreen
 
-const test = async () => {
-  const email = Firebase.auth().currentUser.email;
-  const collectionName = "NewUsers"
+const pullArticles = async () => {
+  const uid = Firebase.auth().currentUser.uid;
+  const collectionName = "users"
   const db = Firebase.firestore();
-  const ref = db.collection(collectionName).doc(email).collection('Saved')
+  const ref = db.collection(collectionName).doc(uid).collection('saved').orderBy('timeSaved', 'desc')
   var alist = []
   //add try catch
   await ref.get().then(querySnapshot => {
@@ -59,21 +60,12 @@ const styles = StyleSheet.create({
     flex: 1,
     //USE THIS?, IT GETS THE DEVICES STATUS BAR HEIGHT?
     marginTop: StatusBar.currentHeight || 0,
-    backgroundColor: '#555B6E',
+    backgroundColor: theme.colors.black,
   },
   item: {
-    backgroundColor: '#E5E1EE',
+    //backgroundColor: '#E5E1EE',
     padding: 5,
     marginVertical: 4,
     marginHorizontal: 4,
-  },
-  title: {
-    fontSize: 32,
-  },
-  litem: {
-    //backgroundColor: '#555B6E',
-  },
-  litemt: {
-    color: '#555B6E',
   },
 });

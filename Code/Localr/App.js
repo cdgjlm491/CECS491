@@ -8,7 +8,7 @@ import * as Permissions from 'expo-permissions';
 //import { AppearanceProvider } from 'react-native-appearance';
 
 LogBox.ignoreLogs(['Setting a timer'])
-
+LogBox.ignoreAllLogs()
 
 //this is one way to create a function in react native, I will be using arrow functions from now on.
 export default function App(props) {
