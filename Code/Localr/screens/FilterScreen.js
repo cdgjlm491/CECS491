@@ -30,7 +30,7 @@ const FilterScreen = () => {
       console.log('No such document!');
     } else {
       //console.log('Document data:', doc.data());
-      return doc.data().Interests
+      return doc.data().interests
     }
   }
 
@@ -47,7 +47,7 @@ const FilterScreen = () => {
 
     //add try catch
     const ref = await Firebase.firestore().collection('users').doc(uid)
-    const res = await ref.update({ Interests: topiclist })
+    const res = await ref.update({ interests: topiclist })
   }
 
   useEffect(() => {

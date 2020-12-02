@@ -22,7 +22,7 @@ import 'react-native-get-random-values'
 import { v4 as uuidv4 } from 'uuid';
 import {
   GOOGLE_PLACES_API
-} 
+}
 from 'react-native-dotenv'
 Geocoder.init(GOOGLE_PLACES_API, {language: 'en'})
 
@@ -144,7 +144,7 @@ const MapScreen = (props) => {
     <ThemeProvider theme={theme}>
     <View style={styles.container}>
       <View style={styles.container}>
-    
+
         <MapView style={styles.map}
           provider={PROVIDER_GOOGLE}
           ref={mapRef}
@@ -160,13 +160,13 @@ const MapScreen = (props) => {
           //PROBLEM: when you select a marker and move the map the markers are refreshed causing the marker to no longer be selected
           //isGesture can prevent this if it works when deployed to the appstore, currently it is returning undefined.
           //get boundries, then pull markers, then set markers
-          onRegionChangeComplete={region => {
+/*           onRegionChangeComplete={region => {
             console.log('region change complete');
             //setRegion(region)
             //console.log(region)
             //Create expieremental option to enable this? Uses more database reads than the button.
             //mapRef.current.getMapBoundaries().then(mapborder => getArticles(mapborder, region).then(markers => setMarkerList(createMarkers(markers, props))))
-          }}
+          }} */
         >
 
           {markerList}
@@ -191,12 +191,9 @@ const MapScreen = (props) => {
           </Text>
         </View>
       </View>
-    <View style={styles.container}>
-      {view}
       <View style={styles.searchbar}>
         <GooglePlacesAutocomplete
           placeholder='Search'
-                
           onPress={(data, details = null) => {
                             Geocoder.from(data['description'])
                             .then(json => {
@@ -218,6 +215,7 @@ const MapScreen = (props) => {
                               console.log("Update region");
                               console.log(newRegion);
                               setRegion(newRegion);
+                              mapRef.current.animateToRegion(newRegion)
 
                             })
                             .catch(error => console.warn(error));
@@ -246,7 +244,7 @@ const getTopics = async () => {
     console.log('No such document!');
   } else {
     //console.log('Document data:', doc.data());
-    return doc.data().Interests
+    return doc.data().interests
   }
 
 }
@@ -354,7 +352,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     position: 'absolute',
     height: 100,
-    top: 60,
+    top: 30,
     left: 0,
     width: '100%',
   },

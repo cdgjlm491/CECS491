@@ -4,6 +4,7 @@ import { Button, Input, ThemeProvider } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Firebase from '../components/Firebase'
 import theme from '../components/Theme'
+import * as firebase from 'firebase';
 
 
 const StartScreen = (props) => {
@@ -102,10 +103,10 @@ const signUp = async (email, password) => {
 const createUser = async (token) => {
     var firestore = Firebase.firestore();
     const userData = {
-        Age: 0,
-        Email: token.user.email,
-        Interests: [],
-        Name: "N/A"
+        name: 'void',
+        email: token.user.email,
+        interests: ['business', 'entertainment', 'health', 'politics', 'crime', 'science', 'sports', 'travel'],
+        dob: firebase.firestore.Timestamp.now()
     }
     console.log(userData);
     try {

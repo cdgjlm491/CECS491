@@ -117,7 +117,7 @@ const update = async (name, dob) => {
   }
 
   //add try catch
-  await Firebase.firestore().collection('users').doc(uid).set(userData);
+  await Firebase.firestore().collection('users').doc(uid).update(userData);
   console.log("Done updating");
 }
 /**
