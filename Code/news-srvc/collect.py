@@ -92,7 +92,7 @@ def gen_id(news_item) :
     ---
     unique id as a string
     '''
-    return news_item["datePublished"] + '_' + news_item["geohash"]
+    return news_item["geohash"] + '_' + news_item["datePublished"]
     
 def locate(news_lst, city) :
     '''Temporary geohasher assigns random locations based on city parameter; also 
@@ -177,7 +177,6 @@ def collect() :
         print("writing to Firestore ...\n")
         db = firestore.Client()    
         for item in news_lst :
-            #doc_ref = db.collection(item["city"]).document(item["id"])
             doc_ref = db.collection("Testing Collections").document(c).collection("Articles").document(item["id"])
             doc_ref.set({
                 "datePublished" : item["datePublished"],
@@ -193,8 +192,8 @@ def collect() :
                 }
             })
         #    
-        for i in news_lst :
-            text.append(i["topic"] + " : " + i["name"])
+    for i in news_lst :
+        text.append(i["topic"] + " : " + i["name"])
     #    
     text = ";_____".join(text)
     name = os.environ.get('NAME', text)
