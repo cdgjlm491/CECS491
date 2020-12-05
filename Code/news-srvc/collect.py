@@ -3,7 +3,6 @@ import json
 import random as rand
 import requests 
 import os
-import re
 
 from flask import Flask
 from geolib import geohash
@@ -18,11 +17,6 @@ subscription_key = "6b62615906f84b91b3cceb985b4011e6"
 search_term = "Microsoft"
 search_url = "https://api.cognitive.microsoft.com/bing/v7.0/news/search"
 cities = ["long-beach","lakewood","cerritos", "bellflower"]
-
-#helper function to strip html element tags --- used in webscrape()
-def striphtml(data):
-    p = re.compile(r'<.*?>')
-    return p.sub('', data)
 
 def webscrape(city, key, url):
     """ Creates a request for news article that contain a city, gets the 
@@ -75,10 +69,12 @@ def webscrape(city, key, url):
         item.pop('provider')
         item['organization'] = organization
         item["city"] = city
-        # remove other unneccessary tags in headline name 
-        item["name"] = striphtml(item['name'])
-        
+        # remove other unneccessary tags
         money = dict((k, item[k]) for k in important_tags)
+        #remove unnecessary symbols in the headline and summaries
+        if ("<b>" in item['name']):
+          item['name'] = item["name"].replace('<b>','')
+          item['name'] = item["name"].replace('</b>','')
 
         payload.append(money)
                 
