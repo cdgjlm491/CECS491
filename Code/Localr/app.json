@@ -3,6 +3,7 @@
     "name": "Localr",
     "slug": "Localr",
     "privacy": "unlisted",
+    "userInterfaceStyle": "automatic",
     "platforms": [
       "ios",
       "android"
