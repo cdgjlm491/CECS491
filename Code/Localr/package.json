@@ -23,7 +23,7 @@
     "country-state-city": "^1.0.5",
     "expo": "^39.0.4",
     "expo-asset": "~8.2.0",
-    "expo-cli": "^3.27.10",
+    "expo-cli": "^6.3.12",
     "expo-constants": "~9.2.0",
     "expo-device": "~2.3.0",
     "expo-font": "~8.3.0",
@@ -46,7 +46,7 @@
     "react-native-gesture-handler": "~1.7.0",
     "react-native-get-random-values": "^1.5.0",
     "react-native-google-place-picker": "^1.2.1",
-    "react-native-google-places-autocomplete": "^2.1.1",
+    "react-native-google-places-autocomplete": "^2.6.4",
     "react-native-maps": "0.27.1",
     "react-native-material-textfield": "^0.16.1",
     "react-native-multiple-select": "^0.5.5",
@@ -62,7 +62,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.3",
     "babel-preset-expo": "^8.3.0",
-    "jest-expo": "^39.0.0"
+    "jest-expo": "^54.0.17"
   },
   "private": true
 }
