@@ -23,7 +23,7 @@
     "country-state-city": "^1.0.5",
     "expo": "^39.0.4",
     "expo-asset": "~8.2.0",
-    "expo-cli": "^3.27.10",
+    "expo-cli": "^6.3.12",
     "expo-constants": "~9.2.0",
     "expo-device": "~2.3.0",
     "expo-font": "~8.3.0",
