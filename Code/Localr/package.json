@@ -31,7 +31,7 @@
     "expo-permissions": "~9.3.0",
     "expo-splash-screen": "~0.6.2",
     "expo-web-browser": "~8.5.0",
-    "firebase": "7.9.0",
+    "firebase": "12.12.0",
     "geofire": "^5.1.0",
     "geofirestore": "^4.3.0",
     "geolib": "^3.3.1",
